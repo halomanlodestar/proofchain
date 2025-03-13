@@ -59,9 +59,17 @@ export const getTransactionsFrom = controller(async (req, res) => {
 		},
 	});
 
-	// res.status(200).json({
-	//   transactions,
-	// });
+	return new HttpResponse(HttpStatus.OK, { transactions });
+});
+
+export const getTransactionsTo = controller(async (req, res) => {
+	const id = Number(req.params.id);
+
+	const transactions = await prisma.transaction.findMany({
+		where: {
+			recieverId: id,
+		},
+	});
 
 	return new HttpResponse(HttpStatus.OK, { transactions });
 });

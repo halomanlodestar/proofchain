@@ -10,20 +10,20 @@ import morgan from "morgan";
 env();
 
 const app = express();
+(async () => {
+	console.log("🚀 Starting server...");
+	console.log("🔌 Connecting to database...");
+	await prisma.$connect().then(() => console.log("✅ Connected to database"));
 
-console.log("🚀 Starting server...");
-console.log("🔌 Connecting to database...");
+	app.use(
+		cors({
+			origin: ["http://localhost:3001"],
+		})
+	);
+	app.use(morgan("dev"));
+	app.use("/api/v1", mainRouter);
 
-prisma.$connect().then(() => console.log("✅ Connected to database"));
+	const PORT = process.env.PORT || 3000;
 
-app.use(
-	cors({
-		origin: ["http://localhost:3001"],
-	})
-);
-app.use(morgan("dev"));
-app.use("/api/v1", mainRouter);
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => console.log(`✅ Running app at ${PORT}`));
+	app.listen(PORT, () => console.log(`✅ Running app at ${PORT}`));
+})();
