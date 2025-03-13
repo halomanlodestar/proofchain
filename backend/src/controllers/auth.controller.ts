@@ -1,17 +1,17 @@
 /** @format */
 
-import { prisma } from "@cleartrack/prisma";
-import { Prisma } from "@cleartrack/prisma";
+import { prisma } from "../utils/prisma-client";
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { controller } from "../utils/asyncHandler";
-import { HttpResponse } from "@cleartrack/http-utils";
+import { HttpResponse } from "../utils/http-utils";
 import {
 	BadRequestError,
 	NotFoundError,
 	UnauthorizedError,
-} from "@cleartrack/http-utils/error/4xx";
-import { InternalServerError } from "@cleartrack/http-utils/error/5xx";
+} from "../utils/http-utils/errors/4xx-error";
+import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
 
 const ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15;
 const REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 7;

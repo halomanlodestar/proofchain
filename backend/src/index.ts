@@ -3,7 +3,7 @@
 import express from "express";
 import { mainRouter } from "./routes";
 import { env } from "./config/env";
-import { prisma } from "@cleartrack/prisma";
+import { prisma } from "./utils/prisma-client";
 import cors from "cors";
 import morgan from "morgan";
 

@@ -1,7 +1,6 @@
 /** @format */
 import { Link, redirect } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { Transaction } from "../../../../packages/shared/src";
 
 interface Props {
 	transaction: Transaction;

@@ -1,9 +1,9 @@
 /** @format */
 
 import jwt from "jsonwebtoken";
-import { prisma } from "@cleartrack/prisma";
+import { prisma } from "../utils/prisma-client";
 import { Controller } from "../types";
-import { UnauthorizedError } from "@cleartrack/http-utils/error/4xx";
+import { UnauthorizedError } from "../utils/http-utils/errors/4xx-error";
 import { controller } from "../utils/asyncHandler";
 
 export const authMiddleware: Controller = controller(async (req, res, next) => {

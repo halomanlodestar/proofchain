@@ -1,5 +1,5 @@
 /** @format */
-import { HttpResponse } from "@cleartrack/http-utils";
+import { HttpResponse } from "../utils/http-utils";
 import { controller } from "../utils/asyncHandler";
 
 export const pingController = controller(async (req, res) => {

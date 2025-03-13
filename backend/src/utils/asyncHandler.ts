@@ -2,8 +2,8 @@
 
 import { NextFunction, Request, Response } from "express";
 import { Controller } from "../types";
-import { HttpError } from "@cleartrack/http-utils/errors";
-import { HttpResponse } from "@cleartrack/http-utils";
+import { HttpError } from "../utils/http-utils/errors";
+import { HttpResponse } from "../utils/http-utils";
 
 export const controller = (fn: Controller): Controller => {
 	return async (req: Request, res: Response, next: NextFunction) => {

@@ -1,22 +1,21 @@
 /** @format */
 
-import "@cleartrack/shared/types";
 import jwt from "jsonwebtoken";
 import { createTransactionSchema } from "../schemas/transactions.schema";
 import { z } from "zod";
-import { prisma } from "@cleartrack/prisma";
-import { HttpResponse, HttpStatus } from "@cleartrack/http-utils";
+import { prisma } from "../utils/prisma-client";
+import { HttpResponse, HttpStatus } from "../utils/http-utils";
 import { controller } from "../utils/asyncHandler";
-import { InternalServerError } from "@cleartrack/http-utils/error/5xx";
+import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
 import {
 	NotFoundError,
 	UnauthorizedError,
-} from "@cleartrack/http-utils/error/4xx";
+} from "../utils/http-utils/errors/4xx-error";
 // import {
 //   InternalServerError,
 //   NotFoundError,
 //   UnauthorizedError,
-// } from "@cleartrack/http-utils/errors";
+// } from "../utils/http-utils/errors";
 
 export const getTransactions = controller(async (req, res) => {
 	const id = Number(req.params.id);

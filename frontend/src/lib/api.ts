@@ -3,8 +3,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { API_URL } from "./constants";
 import { redirect } from "@tanstack/react-router";
-import { Transaction } from "@cleartrack/prisma/client";
-import { DetailedTransaction } from "../../../../packages/shared/src";
 
 class TransactionApi {
 	constructor(
