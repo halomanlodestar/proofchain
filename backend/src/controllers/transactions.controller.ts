@@ -11,6 +11,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
+import { Transaction } from "@prisma/client";
 // import {
 //   InternalServerError,
 //   NotFoundError,
@@ -26,7 +27,7 @@ export const getTransactions = controller(async (req, res) => {
     },
     omit: {
       senderId: true,
-      recieverId: true,
+      recipientId: true,
     },
     include: {
       sender: {
@@ -36,7 +37,7 @@ export const getTransactions = controller(async (req, res) => {
           id: true,
         },
       },
-      reciever: {
+      recipient: {
         select: {
           email: true,
           name: true,
@@ -67,7 +68,7 @@ export const getTransactionsTo = controller(async (req, res) => {
 
   const transactions = await prisma.transaction.findMany({
     where: {
-      receiverId: id,
+      recipientId: id,
     },
   });
 
@@ -76,12 +77,12 @@ export const getTransactionsTo = controller(async (req, res) => {
 
 export const getTransactionBetween = controller(async (req, res) => {
   const senderId = Number(req.params.senderId);
-  const receiverId = Number(req.params.recieverId);
+  const recipientId = Number(req.params.recipientId);
 
   const transactions = await prisma.transaction.findMany({
     where: {
       senderId,
-      receiverId,
+      recipientId,
     },
   });
 
@@ -103,7 +104,7 @@ export const getPendingTransactionsFrom = controller(async (req, res) => {
 });
 
 export const createTransaction = controller(async (req, res) => {
-  const { amount, expirationTime, recieverId } = req.body as z.infer<
+  const { amount, expirationTime, recipientId } = req.body as z.infer<
     typeof createTransactionSchema
   >;
 
@@ -113,7 +114,7 @@ export const createTransaction = controller(async (req, res) => {
   const { signature: previousHash } = (await prisma.transaction.findFirst({
     where: {
       senderId,
-      recieverId,
+      recipientId,
     },
     orderBy: {
       initialisedAt: "desc",
@@ -124,7 +125,7 @@ export const createTransaction = controller(async (req, res) => {
   })) ?? { signature: (Math.random() * 1_000_000).toString() };
 
   const signature = jwt.sign(
-    { amount, expirationTime, recieverId, senderId, previousHash },
+    { amount, expirationTime, recipientId, senderId, previousHash },
     process.env.JWT_SECRET!,
   );
 
@@ -133,7 +134,7 @@ export const createTransaction = controller(async (req, res) => {
       data: {
         amount,
         expirationTime,
-        recieverId,
+        recipientId,
         senderId,
         signature,
         previousHash,
@@ -162,20 +163,20 @@ export const acceptTransaction = controller(async (req, res) => {
     throw new NotFoundError("Transaction not found");
   }
 
-  const { amount, expirationTime, recieverId, senderId, previousHash } =
+  const { amount, expirationTime, recipientId, senderId, previousHash } =
     jwt.verify(pendingTransaction.signature, process.env.JWT_SECRET!) as {
       amount: number;
       expirationTime: string;
-      recieverId: number;
+      recipientId: number;
       senderId: number;
       previousHash: string;
     };
 
   const { id: userId } = req?.user!;
 
-  // console.log(userId, recieverId);
+  // console.log(userId, recipientId);
 
-  if (userId !== recieverId) {
+  if (userId !== recipientId) {
     // res.status(401).json({ message: "Unauthorized" });
     // return;
     throw new UnauthorizedError("Unauthorized");
@@ -186,7 +187,7 @@ export const acceptTransaction = controller(async (req, res) => {
       amount,
       expirationTime,
       acceptedAt: new Date().toISOString(),
-      recieverId,
+      recipientId,
       senderId,
       signature: pendingTransaction.signature,
       previousHash,
@@ -218,16 +219,16 @@ export const rejectTransaction = controller(async (req, res) => {
     throw new NotFoundError("Transaction not found");
   }
 
-  const { recieverId } = jwt.verify(
+  const { recipientId } = jwt.verify(
     pendingTransaction.signature,
     process.env.JWT_SECRET!,
   ) as {
-    recieverId: number;
+    recipientId: number;
   };
 
   const { id: userId } = req?.user!;
 
-  if (userId !== recieverId) {
+  if (userId !== recipientId) {
     // res.status(401).json({ message: "Unauthorized" });
     // return;
     throw new UnauthorizedError("Unauthorized");

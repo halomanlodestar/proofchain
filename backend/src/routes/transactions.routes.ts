@@ -2,6 +2,7 @@
 
 import {
   acceptTransaction,
+  getTransactionBetween,
   getTransactionsFrom,
   getTransactionsTo,
 } from "../controllers/transactions.controller";
