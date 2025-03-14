@@ -5,17 +5,17 @@ import { createTransactionSchema } from "../schemas/transactions.schema";
 import { z } from "zod";
 import { prisma } from "../utils/prisma-client";
 import { HttpResponse, HttpStatus } from "../utils/http-utils";
-import { controller } from "../utils/asyncHandler";
+import { controller } from "../utils/async-controller";
 import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
 import {
   NotFoundError,
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
 
-export const getTransactions = controller(async (req) => {
+export const getTransactionById = controller(async (req) => {
   const id = Number(req.params.id);
 
-  const transactions = await prisma.transaction.findMany({
+  const transaction = await prisma.transaction.findUnique({
     where: {
       id,
     },
@@ -41,7 +41,7 @@ export const getTransactions = controller(async (req) => {
     },
   });
 
-  return new HttpResponse(HttpStatus.OK, { transactions });
+  return new HttpResponse(HttpStatus.OK, { transaction });
 });
 
 export const getTransactionsFrom = controller(async (req) => {

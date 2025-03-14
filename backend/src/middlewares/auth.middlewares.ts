@@ -1,43 +1,44 @@
-/** @format */
-
 import jwt from "jsonwebtoken";
 import { prisma } from "../utils/prisma-client";
 import { Controller } from "../types";
 import { UnauthorizedError } from "../utils/http-utils/errors/4xx-error";
-import { controller } from "../utils/asyncHandler";
+import { controller } from "../utils/async-controller";
+import { HttpResponse } from "../utils/http-utils";
 
-export const authMiddleware: Controller = controller(async (req, res, next) => {
-	const token = req.headers.authorization?.split(" ")[1];
+export const authMiddleware: Controller = async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
-	if (!token) {
-		// res.status(401).json({ message: "Unauthorized" });
+  if (!token) {
+    throw new UnauthorizedError("Unauthorized by middleware");
+  }
 
-		// return new HttpResponse(401, {});
-		throw new UnauthorizedError("Unauthorized by middleware");
-	}
+  let payload;
 
-	const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-		id: string;
-		exp: number;
-	};
+  try {
+    payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+      exp: number;
+    };
+  } catch (error) {
+    res.status(401).json({});
+    return;
+  }
 
-	if (Date.now() >= payload.exp) {
-		// res.status(401).json({ message: "Unauthorized" });
-		// return;
-		throw new UnauthorizedError("Unauthorized by middleware");
-	}
+  if (Date.now() >= payload.exp) {
+    throw new UnauthorizedError("Unauthorized by middleware");
+  }
 
-	req.user =
-		(await prisma.user.findUnique({
-			where: {
-				id: Number(payload.id),
-			},
-			select: {
-				id: true,
-				name: true,
-				email: true,
-			},
-		})) ?? undefined;
+  req.user =
+    (await prisma.user.findUnique({
+      where: {
+        id: Number(payload.id),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    })) ?? undefined;
 
-	next();
-});
+  next();
+};
