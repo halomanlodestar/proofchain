@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Link } from "react-router";
+import { Loader2 } from "lucide-react";
 
 const SignInForm = () => {
   const form = useForm<z.infer<typeof signInFormSchema>>({
@@ -25,15 +26,16 @@ const SignInForm = () => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: SignInFormValues) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: SignInFormValues) {
+    signInFormSchema.parse(values);
   }
 
   return (
-    <Card className={"p-6"}>
+    <Card
+      className={
+        "sm:p-6 border-transparent sm:border-border shadow-none sm:shadow-sm"
+      }
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -67,7 +69,14 @@ const SignInForm = () => {
               </FormItem>
             )}
           />
-          <Button className={"w-full"} type="submit">
+          <Button
+            disabled={form.formState.isSubmitting}
+            className={"w-full"}
+            type="submit"
+          >
+            {form.formState.isSubmitting && (
+              <Loader2 className={"animate-spin"} />
+            )}
             Submit
           </Button>
           <FormDescription>
