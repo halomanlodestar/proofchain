@@ -70,6 +70,7 @@ export const login = controller(async (req, res, next) => {
   res.cookie("refresh_token", refreshToken, {
     expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
     httpOnly: true,
+    sameSite: "lax",
   });
 
   // res.status(200).json({ message: "Logged in" });
