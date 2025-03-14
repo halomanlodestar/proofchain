@@ -9,7 +9,6 @@ export const authMiddleware: Controller = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    // throw new UnauthorizedError("Unauthorized by middleware");
     res.status(401).json({});
     return;
   }
@@ -27,7 +26,6 @@ export const authMiddleware: Controller = async (req, res, next) => {
   }
 
   if (Date.now() >= payload.exp) {
-    // throw new UnauthorizedError("Unauthorized by middleware");
     res.status(401).json({});
     return;
   }

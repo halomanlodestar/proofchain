@@ -1,30 +1,33 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Home from "./pages/dashboard/Home.tsx";
+import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import { BrowserRouter, Routes, Route } from "react-router";
-import Navbar from "@/components/Navbar.tsx";
+import Navbar from "@/components/Navbar/Navbar.tsx";
 import AuthLayout from "@/pages/auth/AuthLayout.tsx";
 import SignInForm from "@/pages/auth/SignInForm.tsx";
 import SignUpForm from "@/pages/auth/SignUpForm.tsx";
 import NotFound from "@/pages/NotFound.tsx";
+import { AuthProvider } from "@/hooks/use-auth.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path={"/"} index element={<Home />} />
+      <AuthProvider>
+        <Navbar />
+        <Routes>
+          <Route path={"/"} index element={<Dashboard />} />
 
-        {/* Auth */}
-        <Route path={"auth"} element={<AuthLayout />}>
-          <Route path={"signin"} element={<SignInForm />} />
-          <Route path={"signup"} element={<SignUpForm />} />
-        </Route>
+          {/* Auth */}
+          <Route path={"auth"} element={<AuthLayout />}>
+            <Route path={"signin"} element={<SignInForm />} />
+            <Route path={"signup"} element={<SignUpForm />} />
+          </Route>
 
-        {/* Not Found */}
-        <Route path={"*"} element={<NotFound />} />
-      </Routes>
+          {/* Not Found */}
+          <Route path={"*"} element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

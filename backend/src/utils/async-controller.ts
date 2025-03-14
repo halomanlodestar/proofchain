@@ -12,8 +12,6 @@ export const controller = (fn: Controller): Controller => {
       console.log(req.url, response, fn.name, res.getHeaders());
       res.status(response.status).json(response.data);
     } catch (error) {
-      // console.log(error);
-
       if (error instanceof HttpError)
         res.status(error.status).json({ message: error.message });
       else

@@ -22,8 +22,6 @@ export const login = controller(async (req, res) => {
   const loggedIn = req.cookies.refresh_token;
 
   if (loggedIn) {
-    // res.status(200).json({ message: "Already Logged In" });
-    // return next();
     return new HttpResponse(200, { message: "Already Logged In" });
   }
 
@@ -34,16 +32,12 @@ export const login = controller(async (req, res) => {
   });
 
   if (!user) {
-    // res.status(404).json({ message: "Invalid credentials" });
-    // return next();
     throw new NotFoundError("Invalid credentials");
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    // res.status(401).json({ message: "Invalid credentials" });
-    // return next();
     return new HttpResponse(401, { message: "Invalid credentials" });
   }
 
@@ -62,8 +56,6 @@ export const login = controller(async (req, res) => {
       },
     });
   } catch (error) {
-    // res.status(500).json({ message: "Internal Server Error" });
-    // return next();
     throw new InternalServerError("Internal Server Error");
   }
 
@@ -73,7 +65,6 @@ export const login = controller(async (req, res) => {
     sameSite: "lax",
   });
 
-  // res.status(200).json({ message: "Logged in" });
   return new HttpResponse(200, { message: "Logged in" });
 });
 
@@ -99,10 +90,8 @@ export const register = controller(async (req) => {
 });
 
 export const logout = controller((_req, res) => {
-  // res.clearCookie("access_token");
   res.clearCookie("refresh_token");
 
-  // res.status(200).json({ message: "Logged out" });
   return new HttpResponse(204);
 });
 
@@ -110,8 +99,6 @@ export const refresh = controller(async (req) => {
   const refreshToken = req.cookies.refresh_token;
 
   if (!refreshToken) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -120,8 +107,6 @@ export const refresh = controller(async (req) => {
   try {
     payload = jwt.verify(refreshToken, process.env.JWT_SECRET!);
   } catch (error) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -132,8 +117,6 @@ export const refresh = controller(async (req) => {
   });
 
   if (!user) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -143,11 +126,6 @@ export const refresh = controller(async (req) => {
     {},
   );
 
-  // res.cookie("access_token", accessToken, {
-  // 	expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRY),
-  // });
-
-  // res.status(200).json({ accessToken });
   return new HttpResponse(200, { accessToken });
 });
 
@@ -155,8 +133,6 @@ export const me = controller(async (req) => {
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   if (!accessToken) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -165,8 +141,6 @@ export const me = controller(async (req) => {
   try {
     payload = jwt.verify(accessToken, process.env.JWT_SECRET!);
   } catch (error) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -183,13 +157,10 @@ export const me = controller(async (req) => {
   });
 
   if (!user) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
   console.log("user", user);
 
-  // res.status(200).json({ user });
   return new HttpResponse(200, { user });
 });

@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Link, useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
-import { api } from "@/lib/api-client.ts";
+import { useAuth } from "@/hooks/use-auth.tsx";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof signUpFormSchema>>({
@@ -28,12 +28,14 @@ const SignUpForm = () => {
     },
   });
 
+  const { signUp } = useAuth();
+
   const navigate = useNavigate();
 
   async function onSubmit(values: SignUpFormValues) {
     const parsedValues = signUpFormSchema.parse(values);
 
-    const { status } = await api.auth.signUp(parsedValues);
+    const { status } = await signUp(parsedValues);
 
     if (status === 200) {
       navigate("/");

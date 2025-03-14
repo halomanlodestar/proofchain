@@ -1,6 +1,6 @@
 import { navlinks } from "@/lib/navlinks.ts";
-import { NavLink } from "react-router";
-import { Button } from "@/components/ui/button.tsx";
+import { useAuth } from "@/hooks/use-auth.tsx";
+import NavAvatar from "@/components/Navbar/NavAvatar.tsx";
 
 const Navbar = () => {
   return (
@@ -13,12 +13,11 @@ const Navbar = () => {
       <nav>
         <ul>
           {navlinks.map((link) => (
-            <li key={link.href}>
-              <Button asChild variant={link.variant}>
-                <NavLink to={link.href}>{link.name}</NavLink>
-              </Button>
-            </li>
+            <li key={link.href}></li>
           ))}
+          <li key={"nav-avatar"}>
+            <NavAvatar />
+          </li>
         </ul>
       </nav>
     </header>

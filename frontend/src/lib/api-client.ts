@@ -7,6 +7,13 @@ export const client = axios.create({
 });
 
 export const api = {
+  /**
+   * Auth API
+   * - POST /auth/register
+   * - POST /auth/login
+   * - POST /auth/logout
+   * - GET /auth/me
+   */
   auth: {
     signUp: async (data: SignUpFormValues) => {
       return await client.post("/auth/register", data);
@@ -17,11 +24,19 @@ export const api = {
     signOut: async () => {
       return await client.post("/auth/logout");
     },
+    refreshToken: async () => {
+      return await client.post<{ accessToken: string }>("/auth/refresh");
+    },
     me: async () => {
       return await client.get("/auth/me");
     },
   },
 
+  /**
+   * User API
+   * - GET /users/:id
+   * - PUT /users/:id
+   */
   user: {
     get: async (id: string) => {
       return await client.get(`/users/${id}`);
@@ -33,8 +48,6 @@ export const api = {
 
   /**
    * Transaction API
-   *
-   * end points:
    * - POST /transactions
    * - GET /transactions/:id
    * - GET /transactions/from/:id
