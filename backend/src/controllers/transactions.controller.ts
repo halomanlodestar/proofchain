@@ -12,7 +12,7 @@ import {
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
 
-export const getTransactions = controller(async (req, res) => {
+export const getTransactions = controller(async (req) => {
   const id = Number(req.params.id);
 
   const transactions = await prisma.transaction.findMany({
@@ -44,7 +44,7 @@ export const getTransactions = controller(async (req, res) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getTransactionsFrom = controller(async (req, res) => {
+export const getTransactionsFrom = controller(async (req) => {
   const id = Number(req.params.id);
 
   const transactions = await prisma.transaction.findMany({
@@ -56,7 +56,7 @@ export const getTransactionsFrom = controller(async (req, res) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getTransactionsTo = controller(async (req, res) => {
+export const getTransactionsTo = controller(async (req) => {
   const id = Number(req.params.id);
 
   const transactions = await prisma.transaction.findMany({
@@ -82,7 +82,7 @@ export const getTransactionBetween = controller(async (req) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getPendingTransactionsFrom = controller(async (req, res) => {
+export const getPendingTransactionsFrom = controller(async (req) => {
   const id = Number(req.params.id);
 
   const transactions = await prisma.pendingTransaction.findMany({
@@ -94,7 +94,7 @@ export const getPendingTransactionsFrom = controller(async (req, res) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const createTransaction = controller(async (req, res) => {
+export const createTransaction = controller(async (req) => {
   const { amount, expirationTime, recipientId } = req.body as z.infer<
     typeof createTransactionSchema
   >;
@@ -139,7 +139,7 @@ export const createTransaction = controller(async (req, res) => {
   return new HttpResponse(HttpStatus.CREATED, { signature });
 });
 
-export const acceptTransaction = controller(async (req, res) => {
+export const acceptTransaction = controller(async (req) => {
   const id = Number(req.params.id);
 
   const pendingTransaction = await prisma.pendingTransaction.findUnique({
@@ -191,7 +191,7 @@ export const acceptTransaction = controller(async (req, res) => {
   return new HttpResponse(HttpStatus.CREATED, { transaction });
 });
 
-export const rejectTransaction = controller(async (req, res) => {
+export const rejectTransaction = controller(async (req) => {
   const id = Number(req.params.id);
 
   const pendingTransaction = await prisma.pendingTransaction.findUnique({
