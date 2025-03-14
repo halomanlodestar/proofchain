@@ -11,12 +11,6 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
-import { Transaction } from "@prisma/client";
-// import {
-//   InternalServerError,
-//   NotFoundError,
-//   UnauthorizedError,
-// } from "../utils/http-utils/errors";
 
 export const getTransactions = controller(async (req, res) => {
   const id = Number(req.params.id);
@@ -47,7 +41,6 @@ export const getTransactions = controller(async (req, res) => {
     },
   });
 
-  // res.status(200).json({ transactions });
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
@@ -75,7 +68,7 @@ export const getTransactionsTo = controller(async (req, res) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getTransactionBetween = controller(async (req, res) => {
+export const getTransactionBetween = controller(async (req) => {
   const senderId = Number(req.params.senderId);
   const recipientId = Number(req.params.recipientId);
 
@@ -98,9 +91,7 @@ export const getPendingTransactionsFrom = controller(async (req, res) => {
     },
   });
 
-  res.status(200).json({
-    transactions,
-  });
+  return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
 export const createTransaction = controller(async (req, res) => {
@@ -142,11 +133,10 @@ export const createTransaction = controller(async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    // res.status(500).json({ message: "Internal server error" });
     throw new InternalServerError("Internal server error");
   }
 
-  res.status(201).json({});
+  return new HttpResponse(HttpStatus.CREATED, { signature });
 });
 
 export const acceptTransaction = controller(async (req, res) => {
@@ -159,7 +149,6 @@ export const acceptTransaction = controller(async (req, res) => {
   });
 
   if (!pendingTransaction) {
-    // res.status(404).json({ message: "Transaction not found" });
     throw new NotFoundError("Transaction not found");
   }
 
@@ -177,8 +166,6 @@ export const acceptTransaction = controller(async (req, res) => {
   // console.log(userId, recipientId);
 
   if (userId !== recipientId) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return;
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -201,7 +188,6 @@ export const acceptTransaction = controller(async (req, res) => {
     },
   });
 
-  // res.status(201).json({ transaction });
   return new HttpResponse(HttpStatus.CREATED, { transaction });
 });
 
@@ -215,7 +201,6 @@ export const rejectTransaction = controller(async (req, res) => {
   });
 
   if (!pendingTransaction) {
-    // res.status(404).json({ message: "Transaction not found" });
     throw new NotFoundError("Transaction not found");
   }
 
@@ -229,8 +214,6 @@ export const rejectTransaction = controller(async (req, res) => {
   const { id: userId } = req?.user!;
 
   if (userId !== recipientId) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return;
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -247,6 +230,5 @@ export const rejectTransaction = controller(async (req, res) => {
     },
   });
 
-  // res.status(204).json({});
   return new HttpResponse(HttpStatus.NO_CONTENT);
 });
