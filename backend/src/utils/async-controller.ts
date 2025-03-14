@@ -14,14 +14,13 @@ export const controller = (fn: Controller): Controller => {
     } catch (error) {
       console.log(error);
 
-      if (error instanceof HttpError) {
+      if (error instanceof HttpError)
         res.status(error.status).json({ message: error.message });
-      }
-
-      res.status(500).json({
-        message: "Internal Server Error from async controller",
-        error,
-      });
+      else
+        res.status(500).json({
+          message: "Internal Server Error from async controller",
+          error,
+        });
     }
   };
 };
