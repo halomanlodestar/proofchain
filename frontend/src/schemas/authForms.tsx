@@ -12,9 +12,6 @@ export const signUpFormSchema = z.object({
     message: "Name is required",
   }),
   email: z.string().email(),
-  phone: z.string().min(6, {
-    message: "Invalid phone number",
-  }),
   password: z.string().min(6, {
     message: "Password must be at least 6 characters long",
   }),

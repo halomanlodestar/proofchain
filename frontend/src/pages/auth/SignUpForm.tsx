@@ -14,8 +14,9 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
+import { api } from "@/lib/api-client.ts";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof signUpFormSchema>>({
@@ -24,12 +25,20 @@ const SignUpForm = () => {
       email: "",
       password: "",
       name: "",
-      phone: "",
     },
   });
 
+  const navigate = useNavigate();
+
   async function onSubmit(values: SignUpFormValues) {
-    signUpFormSchema.parse(values);
+    const parsedValues = signUpFormSchema.parse(values);
+
+    const { status } = await api.auth.signUp(parsedValues);
+
+    if (status === 200) {
+      navigate("/");
+      form.reset();
+    }
   }
 
   return (
@@ -65,20 +74,6 @@ const SignUpForm = () => {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input placeholder="shadcn" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone</FormLabel>
-                <FormControl>
-                  <Input placeholder="shadcn" type={"tel"} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
