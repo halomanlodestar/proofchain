@@ -1,31 +1,32 @@
+import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
 import axios from "axios";
+
+export const client = axios.create({
+  baseURL: "http://localhost:3000/api/v1",
+});
 
 export const api = {
   auth: {
-    signUp: async (data: {
-      email: string;
-      password: string;
-      phone: string;
-    }) => {
-      return await axios.post("/auth/sign-up", data);
+    signUp: async (data: SignUpFormValues) => {
+      return await client.post("/auth/register", data);
     },
-    signIn: async (data: { email: string; password: string }) => {
-      return await axios.post("/auth/sign-in", data);
+    signIn: async (data: SignInFormValues) => {
+      return await client.post("/auth/login", data);
     },
     signOut: async () => {
-      return await axios.post("/auth/sign-out");
+      return await client.post("/auth/logout");
     },
     me: async () => {
-      return await axios.get("/auth/me");
+      return await client.get("/auth/me");
     },
   },
 
   user: {
     get: async (id: string) => {
-      return await axios.get(`/users/${id}`);
+      return await client.get(`/users/${id}`);
     },
     update: async (id: string, data: { email: string; phone: string }) => {
-      return await axios.put(`/users/${id}`, data);
+      return await client.put(`/users/${id}`, data);
     },
   },
 
@@ -41,19 +42,19 @@ export const api = {
    */
   transaction: {
     create: async (data: { amount: number; recipientId: string }) => {
-      return await axios.post("/transactions", data);
+      return await client.post("/transactions", data);
     },
     get: async (id: string) => {
-      return await axios.get(`/transactions/${id}`);
+      return await client.get(`/transactions/${id}`);
     },
     getFrom: async (id: string) => {
-      return await axios.get(`/transactions/from/${id}`);
+      return await client.get(`/transactions/from/${id}`);
     },
     getTo: async (id: string) => {
-      return await axios.get(`/transactions/to/${id}`);
+      return await client.get(`/transactions/to/${id}`);
     },
     getBetween: async (senderId: string, recipientId: string) => {
-      return await axios.get(
+      return await client.get(
         `/transactions/from/${senderId}/to/${recipientId}`,
       );
     },

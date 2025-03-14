@@ -10,7 +10,7 @@ import morgan from "morgan";
 env();
 
 const app = express();
-(async () => {
+const init = async () => {
   console.log("🚀 Starting server...");
   console.log("🔌 Connecting to database...");
   await prisma.$connect().then(() => console.log("✅ Connected to database"));
@@ -26,4 +26,6 @@ const app = express();
   const PORT = process.env.PORT || 3000;
 
   app.listen(PORT, () => console.log(`✅ Running app at ${PORT}`));
-})();
+};
+
+init();
