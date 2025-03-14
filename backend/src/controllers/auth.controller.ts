@@ -16,7 +16,7 @@ import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
 const ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15;
 const REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 7;
 
-export const login = controller(async (req, res, next) => {
+export const login = controller(async (req, res) => {
   const { email, password } = req.body;
 
   const loggedIn = req.cookies.refresh_token;
@@ -77,7 +77,7 @@ export const login = controller(async (req, res, next) => {
   return new HttpResponse(200, { message: "Logged in" });
 });
 
-export const register = controller(async (req, res, next) => {
+export const register = controller(async (req) => {
   const { name, email, password } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -91,18 +91,14 @@ export const register = controller(async (req, res, next) => {
       },
     });
 
-    // res.status(201).json({ user });
     return new HttpResponse(201, { user });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      // res.status(400).json({ message: "Already Registered" });
-      // return next();
+    if (error instanceof Prisma.PrismaClientKnownRequestError)
       throw new BadRequestError("Already Registered");
-    }
   }
 });
 
-export const logout = controller((req, res, next) => {
+export const logout = controller((_req, res) => {
   // res.clearCookie("access_token");
   res.clearCookie("refresh_token");
 
@@ -110,7 +106,7 @@ export const logout = controller((req, res, next) => {
   return new HttpResponse(204);
 });
 
-export const refresh = controller(async (req, res, next) => {
+export const refresh = controller(async (req) => {
   const refreshToken = req.cookies.refresh_token;
 
   if (!refreshToken) {
