@@ -5,13 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-
 }
 
 enum TransactionStatus {
@@ -22,13 +21,13 @@ enum TransactionStatus {
 }
 
 model User {
-  id                  Int           @id @default(autoincrement())
-  name                String
-  email               String        @unique
-  password            String
-  SenderTransaction   Transaction[] @relation("sender")
-  RecieverTransaction Transaction[] @relation("reciever")
-  token               String?
+  id                   Int           @id @default(autoincrement())
+  name                 String
+  email                String        @unique
+  password             String
+  SenderTransaction    Transaction[] @relation("sender")
+  recipientTransaction Transaction[] @relation("recipient")
+  token                String?
 }
 
 model Transaction {
@@ -36,8 +35,8 @@ model Transaction {
   initialisedAt  DateTime          @default(now())
   senderId       Int
   sender         User              @relation(name: "sender", map: "sender", fields: [senderId], references: [id])
-  recieverId     Int
-  reciever       User              @relation(name: "reciever", map: "reciever", fields: [recieverId], references: [id])
+  recipientId    Int
+  recipient      User              @relation(name: "recipient", map: "recipient", fields: [recipientId], references: [id])
   amount         Float
   acceptedAt     DateTime
   status         TransactionStatus @default(SUCCESSFUL)
@@ -50,7 +49,7 @@ model PendingTransaction {
   id             Int               @id @default(autoincrement())
   initialisedAt  DateTime          @default(now())
   senderId       Int
-  recieverId     Int
+  recipientId    Int
   amount         Float
   status         TransactionStatus @default(PENDING)
   expirationTime DateTime
@@ -62,7 +61,7 @@ model RejectedTransaction {
   id              Int               @id @default(autoincrement())
   initialisedAt   DateTime          @default(now())
   senderId        Int
-  recieverId      Int
+  recipientId     Int
   amount          Float
   acceptedAt      DateTime?
   status          TransactionStatus @default(PENDING)
