@@ -9,8 +9,10 @@ import SignInForm from "@/pages/auth/SignInForm.tsx";
 import SignUpForm from "@/pages/auth/SignUpForm.tsx";
 import NotFound from "@/pages/NotFound.tsx";
 import { AuthProvider } from "@/hooks/use-auth.tsx";
-import PrivateRoutes from "@/components/PrivateRoutes.tsx";
+import ProtectedRoutes from "@/components/ProtectedRoutes.tsx";
 import Transactions from "@/pages/transactions";
+import { Landing } from "@/pages/Landing.tsx";
+import NewTransaction from "@/pages/transactions/NewTransaction.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -18,7 +20,7 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <Navbar />
         <Routes>
-          <Route path={"/"} index element={<Dashboard />} />
+          <Route path={"/"} index element={<Landing />} />
 
           {/* Auth */}
           <Route path={"auth"} element={<AuthLayout />}>
@@ -26,9 +28,11 @@ createRoot(document.getElementById("root")!).render(
             <Route path={"signup"} element={<SignUpForm />} />
           </Route>
 
-          {/* PrivateRoutes */}
-          <Route element={<PrivateRoutes />}>
-            <Route path={"/transactions"} element={<Transactions />} />
+          {/* ProtectedRoutes */}
+          <Route element={<ProtectedRoutes />}>
+            <Route path={"/transactions"} element={<Transactions />}>
+              <Route path={"/new"} element={<NewTransaction />} />
+            </Route>
             <Route path={"/dashboard"} element={<Dashboard />} />
           </Route>
 

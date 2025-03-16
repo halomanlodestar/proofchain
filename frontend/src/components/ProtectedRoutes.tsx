@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/use-auth.tsx";
 import { Navigate, Outlet } from "react-router";
 
-const PrivateRoutes = () => {
+const ProtectedRoutes = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -15,4 +15,4 @@ const PrivateRoutes = () => {
   return <Outlet />;
 };
 
-export default PrivateRoutes;
+export default ProtectedRoutes;

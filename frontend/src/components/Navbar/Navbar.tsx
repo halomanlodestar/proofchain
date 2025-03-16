@@ -1,6 +1,6 @@
 import { navlinks } from "@/lib/navlinks.ts";
-import { useAuth } from "@/hooks/use-auth.tsx";
 import NavAvatar from "@/components/Navbar/NavAvatar.tsx";
+import { Link } from "react-router";
 
 const Navbar = () => {
   return (
@@ -9,7 +9,9 @@ const Navbar = () => {
         "flex justify-between items-center w-full border-b h-16 container-x"
       }
     >
-      <nav>proofchain</nav>
+      <nav>
+        <Link to={"/"}> proofchain</Link>
+      </nav>
       <nav>
         <ul>
           {navlinks.map((link) => (

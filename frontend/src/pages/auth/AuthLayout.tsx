@@ -2,9 +2,9 @@ import { Navigate, Outlet } from "react-router";
 import { useAuth } from "@/hooks/use-auth.tsx";
 
 const AuthLayout = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isCheckingAuth } = useAuth();
 
-  if (isLoading) {
+  if (isLoading || isCheckingAuth) {
     return null;
   }
 
