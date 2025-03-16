@@ -31,7 +31,7 @@ createRoot(document.getElementById("root")!).render(
           {/* ProtectedRoutes */}
           <Route element={<ProtectedRoutes />}>
             <Route path={"/transactions"} element={<Transactions />}>
-              <Route path={"/new"} element={<NewTransaction />} />
+              <Route path={"/transactions/new"} element={<NewTransaction />} />
             </Route>
             <Route path={"/dashboard"} element={<Dashboard />} />
           </Route>

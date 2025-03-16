@@ -4,12 +4,13 @@ import { NextFunction, Request, Response } from "express";
 import { Controller } from "../types";
 import { HttpError } from "./http-utils/errors";
 import { HttpResponse } from "./http-utils";
+import { logger } from "./logger";
 
 export const controller = (fn: Controller): Controller => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const response: HttpResponse = await fn(req, res, next);
-      console.log(req.url, response, fn.name, res.getHeaders());
+      logger.info(req.url, response, fn.name, res.getHeaders());
       res.status(response.status).json(response.data);
     } catch (error) {
       if (error instanceof HttpError)

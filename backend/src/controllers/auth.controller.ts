@@ -12,6 +12,7 @@ import {
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
 import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
+import { logger } from "../utils/logger";
 
 const ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15;
 const REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 7;
@@ -144,7 +145,7 @@ export const me = controller(async (req) => {
     throw new UnauthorizedError("Unauthorized");
   }
 
-  console.log(payload);
+  logger.info(payload);
 
   const user = await prisma.user.findUnique({
     where: {
@@ -160,7 +161,7 @@ export const me = controller(async (req) => {
     throw new UnauthorizedError("Unauthorized");
   }
 
-  console.log("user", user);
+  logger.info("user", user);
 
   return new HttpResponse(200, { user });
 });
