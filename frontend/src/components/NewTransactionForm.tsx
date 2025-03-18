@@ -22,7 +22,7 @@ const NewTransactionForm = () => {
     defaultValues: {
       amount: 0,
       expirationTime: new Date(),
-      recipientId: "",
+      recipientId: "1",
     },
   });
 
