@@ -10,12 +10,14 @@ const Navbar = () => {
       }
     >
       <nav>
-        <Link to={"/"}> proofchain</Link>
+        <Link to={"/"}>proofchain</Link>
       </nav>
       <nav>
-        <ul>
+        <ul className={"flex items-center space-x-4"}>
           {navlinks.map((link) => (
-            <li key={link.href}></li>
+            <li key={link.href}>
+              <Link to={link.href}>{link.name}</Link>
+            </li>
           ))}
           <li key={"nav-avatar"}>
             <NavAvatar />

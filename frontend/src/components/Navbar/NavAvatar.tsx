@@ -10,13 +10,14 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 const NavAvatar = () => {
-  const { isAuthenticated, isCheckingAuth, refreshToken, token } = useAuth();
+  const { isAuthenticated, isCheckingAuth, refreshToken } = useAuth();
 
   useEffect(() => {
     if (!isAuthenticated) {
+      console.log("refreshing");
       refreshToken();
     }
-  }, [isAuthenticated, token]);
+  }, []);
 
   if (isCheckingAuth) {
     return <Loader2 className={"animate-spin"} />;

@@ -152,6 +152,7 @@ export const me = controller(async (req) => {
       id: payload.id,
     },
     select: {
+      id: true,
       name: true,
       email: true,
     },

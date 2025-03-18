@@ -4,8 +4,11 @@ export const navlinks: {
   variant?: "outline" | "link";
 }[] = [
   {
-    name: "SignIn",
-    href: "/auth/signin",
-    variant: "outline",
+    name: "Transactions",
+    href: "/transactions",
+  },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
   },
 ];

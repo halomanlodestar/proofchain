@@ -1,5 +1,6 @@
 import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
 import axios from "axios";
+import { User } from "@/types";
 
 export const client = axios.create({
   baseURL: "http://localhost:3000/api/v1",
@@ -27,8 +28,14 @@ export const api = {
     refreshToken: async () => {
       return await client.post<{ accessToken: string }>("/auth/refresh");
     },
-    me: async () => {
-      return await client.get("/auth/me");
+    me: async (accessToken: string) => {
+      return (
+        await client.get<{ user: User }>("/auth/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+      ).data.user;
     },
   },
 
@@ -55,7 +62,11 @@ export const api = {
    * - GET /transactions/from/:senderId/to/:recipientId
    */
   transaction: {
-    create: async (data: { amount: number; recipientId: string }) => {
+    create: async (data: {
+      amount: number;
+      recipientId: string;
+      expirationTime: Date;
+    }) => {
       return await client.post("/transactions", data);
     },
     get: async (id: string) => {
@@ -71,6 +82,12 @@ export const api = {
       return await client.get(
         `/transactions/from/${senderId}/to/${recipientId}`,
       );
+    },
+  },
+
+  users: {
+    findByEmail: async (email: string) => {
+      return await client.get(`/users/${email}`);
     },
   },
 };
