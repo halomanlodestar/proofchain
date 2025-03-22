@@ -124,7 +124,12 @@ const NewTransactionForm = () => {
             <FormItem>
               <FormLabel>Amount</FormLabel>
               <FormControl>
-                <Input type={"number"} placeholder="shadcn" {...field} />
+                <Input
+                  min={0}
+                  type={"number"}
+                  placeholder="shadcn"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

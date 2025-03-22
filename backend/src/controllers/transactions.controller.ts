@@ -107,11 +107,15 @@ export const getRejectedTransactionsFrom = controller(async (req) => {
 });
 
 export const createTransaction = controller(async (req) => {
+  console.log(req.body);
+
   const { amount, expirationTime, recipientId } = req.body as z.infer<
     typeof createTransactionSchema
   >;
 
   const { id: senderId } = req?.user!;
+
+  console.log(senderId, recipientId);
 
   if (senderId === recipientId) {
     throw new UnauthorizedError("You cannot send money to yourself");
