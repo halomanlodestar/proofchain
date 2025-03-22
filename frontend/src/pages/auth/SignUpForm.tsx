@@ -31,9 +31,7 @@ const SignUpForm = () => {
   });
 
   const [success, setSuccess] = useState(false);
-
   const { signUp, signIn } = useAuth();
-
   const navigate = useNavigate();
 
   async function onSubmit(values: SignUpFormValues) {

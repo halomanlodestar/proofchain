@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button.tsx";
 import { DynamicInput } from "@/components/DynamicInput.tsx";
 import { api } from "@/lib/api-client.ts";
 import { User } from "@/types";
+import { AxiosError } from "axios";
+import { oneDay } from "@/lib/constants.ts";
 
 const ListItem = (user: User) => {
   return (
@@ -32,10 +34,20 @@ const NewTransactionForm = () => {
     resolver: zodResolver(createTransactionSchema),
     defaultValues: {
       amount: 0,
-      expirationTime: new Date(),
+      expirationTime: new Date(Date.now() + oneDay),
       recipientId: "",
     },
   });
+
+  const fetchUsers = async (email: string): Promise<User[]> => {
+    try {
+      const res = await api.users.findByEmail(email);
+      return [res.data.user];
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) return [];
+      return [];
+    }
+  };
 
   const onSubmit = (values: CreateTransactionValues) => {
     console.log(values);
@@ -54,12 +66,8 @@ const NewTransactionForm = () => {
             <FormItem>
               <FormLabel>Recipient</FormLabel>
               <FormControl>
-                {/*<Input type={"text"} placeholder="shadcn" {...field} />*/}
                 <DynamicInput
-                  fetchFunction={async (email) => {
-                    const res = await api.users.findByEmail(email);
-                    return [res.data.user];
-                  }}
+                  fetchFunction={fetchUsers}
                   renderListItem={(user) => <ListItem {...user} />}
                   onSelect={(user) => {
                     console.log(user.id);
