@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card.tsx";
 import { Link, useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth.tsx";
+import { useState } from "react";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof signUpFormSchema>>({
@@ -28,18 +29,31 @@ const SignUpForm = () => {
     },
   });
 
-  const { signUp } = useAuth();
+  const [success, setSuccess] = useState(false);
+
+  const { signUp, signIn } = useAuth();
 
   const navigate = useNavigate();
 
   async function onSubmit(values: SignUpFormValues) {
     const parsedValues = signUpFormSchema.parse(values);
 
-    const { status } = await signUp(parsedValues);
+    const { status: signUpStatus } = await signUp(parsedValues);
+
+    let status: number = 400;
+
+    if (signUpStatus === 201) {
+      const { status: signInStatus } = await signIn(parsedValues);
+      status = signInStatus;
+    }
 
     if (status === 200) {
-      navigate("/");
+      setSuccess(true);
       form.reset();
+
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     }
   }
 
@@ -98,13 +112,13 @@ const SignUpForm = () => {
 
           <Button
             disabled={form.formState.isSubmitting}
-            className={"w-full"}
+            className={`w-full ${success && "bg-success"}`}
             type="submit"
           >
             {form.formState.isSubmitting && (
               <Loader2 className={"animate-spin"} />
             )}
-            Submit
+            {success ? "Done" : "Submit"}
           </Button>
           <FormDescription>
             Already have an account?{" "}

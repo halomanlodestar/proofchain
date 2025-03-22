@@ -33,7 +33,7 @@ export const authMiddleware: Controller = async (req, res, next) => {
   req.user =
     (await prisma.user.findUnique({
       where: {
-        id: Number(payload.id),
+        id: payload.id,
       },
       select: {
         id: true,

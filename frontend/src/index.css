@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --success: #30d05e;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -40,6 +41,7 @@
 }
 
 .dark {
+  --success: #22a449;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -130,4 +132,8 @@
   .h-page {
     @apply h-[calc(100vh-4rem)];
   }
+}
+
+@theme {
+  --color-success: var(--success);
 }
