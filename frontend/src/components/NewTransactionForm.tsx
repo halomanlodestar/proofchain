@@ -66,6 +66,7 @@ const NewTransactionForm = () => {
             <FormItem>
               <FormLabel>Recipient</FormLabel>
               <FormControl>
+                g
                 <DynamicInput
                   fetchFunction={fetchUsers}
                   renderListItem={(user) => <ListItem {...user} />}
