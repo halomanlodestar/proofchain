@@ -15,9 +15,10 @@ import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Link, useNavigate } from "react-router";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth.tsx";
 import { AxiosError } from "axios";
+import { useState } from "react";
 
 const SignInForm = () => {
   const form = useForm<z.infer<typeof signInFormSchema>>({
@@ -30,6 +31,7 @@ const SignInForm = () => {
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
 
   async function onSubmit(values: SignInFormValues) {
     try {
@@ -37,12 +39,15 @@ const SignInForm = () => {
       const { status } = await signIn(parsedValues);
 
       if (status === 200) {
-        navigate("/");
+        setSuccess(true);
         form.reset();
+
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     } catch (e: unknown) {
       if (e instanceof AxiosError) {
-        console.log(e.status);
         form.setError("root", {
           message: e.response?.data.message,
         });
@@ -97,7 +102,8 @@ const SignInForm = () => {
             {form.formState.isSubmitting && (
               <Loader2 className={"animate-spin"} />
             )}
-            Submit
+            {success && <Check />}
+            {success ? "Done" : "Submit"}
           </Button>
           <FormDescription>
             Don't have an account?{" "}

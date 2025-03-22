@@ -15,9 +15,10 @@ import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Link, useNavigate } from "react-router";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth.tsx";
 import { useState } from "react";
+import { AxiosError } from "axios";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof signUpFormSchema>>({
@@ -36,24 +37,32 @@ const SignUpForm = () => {
   const navigate = useNavigate();
 
   async function onSubmit(values: SignUpFormValues) {
-    const parsedValues = signUpFormSchema.parse(values);
+    try {
+      const parsedValues = signUpFormSchema.parse(values);
 
-    const { status: signUpStatus } = await signUp(parsedValues);
+      const { status: signUpStatus } = await signUp(parsedValues);
 
-    let status: number = 400;
+      let status: number = 400;
 
-    if (signUpStatus === 201) {
-      const { status: signInStatus } = await signIn(parsedValues);
-      status = signInStatus;
-    }
+      if (signUpStatus === 201) {
+        const { status: signInStatus } = await signIn(parsedValues);
+        status = signInStatus;
+      }
 
-    if (status === 200) {
-      setSuccess(true);
-      form.reset();
+      if (status === 200) {
+        setSuccess(true);
+        form.reset();
 
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        form.setError("root", {
+          message: e.response?.data.message,
+        });
+      }
     }
   }
 
@@ -109,15 +118,17 @@ const SignUpForm = () => {
               </FormItem>
             )}
           />
-
+          <FormMessage>{form.formState.errors.root?.message}</FormMessage>
           <Button
             disabled={form.formState.isSubmitting}
-            className={`w-full ${success && "bg-success"}`}
+            className={`w-full`}
+            variant={success ? "success" : "default"}
             type="submit"
           >
             {form.formState.isSubmitting && (
               <Loader2 className={"animate-spin"} />
             )}
+            {success && <Check />}
             {success ? "Done" : "Submit"}
           </Button>
           <FormDescription>
