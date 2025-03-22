@@ -48,8 +48,8 @@ model Transaction {
 model PendingTransaction {
   id             String            @id @default(cuid())
   initialisedAt  DateTime          @default(now())
-  senderId       Int
-  recipientId    Int
+  senderId       String
+  recipientId    String
   amount         Float
   status         TransactionStatus @default(PENDING)
   expirationTime DateTime
@@ -60,8 +60,8 @@ model PendingTransaction {
 model RejectedTransaction {
   id              String            @id @default(cuid())
   initialisedAt   DateTime          @default(now())
-  senderId        Int
-  recipientId     Int
+  senderId        String
+  recipientId     String
   amount          Float
   acceptedAt      DateTime?
   status          TransactionStatus @default(PENDING)

@@ -13,7 +13,7 @@ import {
 } from "../utils/http-utils/errors/4xx-error";
 
 export const getTransactionById = controller(async (req) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
 
   const transaction = await prisma.transaction.findUnique({
     where: {
@@ -45,7 +45,7 @@ export const getTransactionById = controller(async (req) => {
 });
 
 export const getTransactionsFrom = controller(async (req) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
 
   const transactions = await prisma.transaction.findMany({
     where: {
@@ -57,7 +57,7 @@ export const getTransactionsFrom = controller(async (req) => {
 });
 
 export const getTransactionsTo = controller(async (req) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
 
   const transactions = await prisma.transaction.findMany({
     where: {
@@ -69,8 +69,8 @@ export const getTransactionsTo = controller(async (req) => {
 });
 
 export const getTransactionBetween = controller(async (req) => {
-  const senderId = Number(req.params.senderId);
-  const recipientId = Number(req.params.recipientId);
+  const senderId = req.params.senderId;
+  const recipientId = req.params.recipientId;
 
   const transactions = await prisma.transaction.findMany({
     where: {
@@ -83,7 +83,7 @@ export const getTransactionBetween = controller(async (req) => {
 });
 
 export const getPendingTransactionsFrom = controller(async (req) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
 
   const transactions = await prisma.pendingTransaction.findMany({
     where: {
@@ -140,7 +140,7 @@ export const createTransaction = controller(async (req) => {
 });
 
 export const acceptTransaction = controller(async (req) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
 
   const pendingTransaction = await prisma.pendingTransaction.findUnique({
     where: {
@@ -156,8 +156,8 @@ export const acceptTransaction = controller(async (req) => {
     jwt.verify(pendingTransaction.signature, process.env.JWT_SECRET!) as {
       amount: number;
       expirationTime: string;
-      recipientId: number;
-      senderId: number;
+      recipientId: string;
+      senderId: string;
       previousHash: string;
     };
 
@@ -192,7 +192,7 @@ export const acceptTransaction = controller(async (req) => {
 });
 
 export const rejectTransaction = controller(async (req) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
 
   const pendingTransaction = await prisma.pendingTransaction.findUnique({
     where: {
