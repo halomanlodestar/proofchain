@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card.tsx";
 import { Link, useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth.tsx";
+import { AxiosError } from "axios";
 
 const SignInForm = () => {
   const form = useForm<z.infer<typeof signInFormSchema>>({
@@ -31,12 +32,21 @@ const SignInForm = () => {
   const navigate = useNavigate();
 
   async function onSubmit(values: SignInFormValues) {
-    const parsedValues = signInFormSchema.parse(values);
-    const { status } = await signIn(parsedValues);
+    try {
+      const parsedValues = signInFormSchema.parse(values);
+      const { status } = await signIn(parsedValues);
 
-    if (status === 200) {
-      navigate("/");
-      form.reset();
+      if (status === 200) {
+        navigate("/");
+        form.reset();
+      }
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        console.log(e.status);
+        form.setError("root", {
+          message: e.response?.data.message,
+        });
+      }
     }
   }
 
@@ -79,6 +89,7 @@ const SignInForm = () => {
               </FormItem>
             )}
           />
+          <FormMessage>{form.formState.errors.root?.message}</FormMessage>
           <Button
             disabled={form.formState.isSubmitting}
             className={"w-full"}

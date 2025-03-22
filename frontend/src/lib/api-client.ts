@@ -87,7 +87,7 @@ export const api = {
 
   users: {
     findByEmail: async (email: string) => {
-      return await client.get(`/users/${email}`);
+      return await client.get<{ user: User }>(`/users/${email}`);
     },
   },
 };

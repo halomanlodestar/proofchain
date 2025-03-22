@@ -15,7 +15,12 @@ export const findUserByEmail = controller(async (req) => {
     where: {
       email,
     },
+    select: { id: true, name: true, email: true },
   });
+
+  if (!user) {
+    throw new BadRequestError("User not found");
+  }
 
   return new HttpResponse(HttpStatus.OK, { user });
 });

@@ -21,7 +21,7 @@ enum TransactionStatus {
 }
 
 model User {
-  id                   Int           @id @default(autoincrement())
+  id                   String        @id @default(cuid())
   name                 String
   email                String        @unique
   password             String
@@ -31,11 +31,11 @@ model User {
 }
 
 model Transaction {
-  id             Int               @id @default(autoincrement())
+  id             String            @id @default(cuid())
   initialisedAt  DateTime          @default(now())
-  senderId       Int
+  senderId       String
   sender         User              @relation(name: "sender", map: "sender", fields: [senderId], references: [id])
-  recipientId    Int
+  recipientId    String
   recipient      User              @relation(name: "recipient", map: "recipient", fields: [recipientId], references: [id])
   amount         Float
   acceptedAt     DateTime
@@ -46,7 +46,7 @@ model Transaction {
 }
 
 model PendingTransaction {
-  id             Int               @id @default(autoincrement())
+  id             String            @id @default(cuid())
   initialisedAt  DateTime          @default(now())
   senderId       Int
   recipientId    Int
@@ -58,7 +58,7 @@ model PendingTransaction {
 }
 
 model RejectedTransaction {
-  id              Int               @id @default(autoincrement())
+  id              String            @id @default(cuid())
   initialisedAt   DateTime          @default(now())
   senderId        Int
   recipientId     Int

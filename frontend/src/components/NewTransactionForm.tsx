@@ -15,6 +15,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input.tsx";
 import { DatePickerDemo } from "@/components/ui/datepicker.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { DynamicInput } from "@/components/DynamicInput.tsx";
+import { api } from "@/lib/api-client.ts";
+import { User } from "@/types";
+
+const ListItem = (user: User) => {
+  return (
+    <div>
+      <p>{user.name}</p>
+    </div>
+  );
+};
 
 const NewTransactionForm = () => {
   const form = useForm<CreateTransactionValues>({
@@ -22,7 +33,7 @@ const NewTransactionForm = () => {
     defaultValues: {
       amount: 0,
       expirationTime: new Date(),
-      recipientId: "1",
+      recipientId: "",
     },
   });
 
@@ -43,7 +54,18 @@ const NewTransactionForm = () => {
             <FormItem>
               <FormLabel>Recipient</FormLabel>
               <FormControl>
-                <Input type={"text"} placeholder="shadcn" {...field} />
+                {/*<Input type={"text"} placeholder="shadcn" {...field} />*/}
+                <DynamicInput
+                  fetchFunction={async (email) => {
+                    const res = await api.users.findByEmail(email);
+                    return [res.data.user];
+                  }}
+                  renderListItem={(user) => <ListItem {...user} />}
+                  onSelect={(user) => {
+                    console.log(user.id);
+                    field.onChange(user.id);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
