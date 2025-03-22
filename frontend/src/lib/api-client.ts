@@ -1,6 +1,6 @@
 import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
 import axios from "axios";
-import { Transaction, TransactionStatus, User } from "@/types";
+import { TransactionStatus, TransactionMini, User } from "@/types";
 
 export const client = axios.create({
   baseURL: "http://localhost:3000/api/v1",
@@ -81,7 +81,7 @@ export const api = {
     },
     getFrom: async (id: string, type: TransactionStatus = "confirmed") => {
       const status = type === "confirmed" ? "" : type;
-      return await client.get<{ transactions: Transaction[] }>(
+      return await client.get<{ transactions: TransactionMini[] }>(
         `/transactions/from/${id}/${status}`,
       );
     },

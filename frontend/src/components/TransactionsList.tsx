@@ -1,20 +1,31 @@
-import { Transaction } from "@/types";
+import { TransactionMini } from "@/types";
+import { Link } from "react-router";
 
-const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
+const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
   return (
-    <div>
-      <div>Amount: {transaction.amount}</div>
-      <div>Recipient: {transaction.recipientId}</div>
-      <div>Sender: {transaction.senderId}</div>
-      <div>Status: {transaction.status}</div>
-    </div>
+    <Link to={"/transactions/" + transaction.id}>
+      <div className={"shadow-lg border rounded-lg p-4"}>
+        <div className={"flex justify-between"}>
+          <div>
+            <div className={"text-lg font-semibold"}>
+              {transaction.recipient.name}
+            </div>
+            <div className={"text-sm text-gray-500"}>
+              {transaction.sender.name} (YOU)
+            </div>
+          </div>
+          <div className={"text-lg font-semibold"}>{transaction.amount}</div>
+        </div>
+        <div className={"text-sm text-gray-500"}>{transaction.status}</div>
+      </div>
+    </Link>
   );
 };
 
 const TransactionsList = ({
   transactions,
 }: {
-  transactions?: Transaction[];
+  transactions?: TransactionMini[];
 }) => {
   if (!transactions) {
     return <div>Loading</div>;

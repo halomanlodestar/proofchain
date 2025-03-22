@@ -51,6 +51,16 @@ export const getTransactionsFrom = controller(async (req) => {
     where: {
       senderId: id,
     },
+    select: {
+      sender: {
+        select: { name: true },
+      },
+      recipient: {
+        select: { name: true },
+      },
+      amount: true,
+      status: true,
+    },
   });
 
   return new HttpResponse(HttpStatus.OK, { transactions });
@@ -62,6 +72,17 @@ export const getTransactionsTo = controller(async (req) => {
   const transactions = await prisma.transaction.findMany({
     where: {
       recipientId: id,
+    },
+    select: {
+      id: true,
+      sender: {
+        select: { name: true },
+      },
+      recipient: {
+        select: { name: true },
+      },
+      amount: true,
+      status: true,
     },
   });
 
@@ -89,6 +110,17 @@ export const getPendingTransactionsFrom = controller(async (req) => {
     where: {
       senderId: id,
     },
+    select: {
+      id: true,
+      sender: {
+        select: { name: true },
+      },
+      recipient: {
+        select: { name: true },
+      },
+      amount: true,
+      status: true,
+    },
   });
 
   return new HttpResponse(HttpStatus.OK, { transactions });
@@ -100,6 +132,17 @@ export const getRejectedTransactionsFrom = controller(async (req) => {
   const transactions = await prisma.rejectedTransaction.findMany({
     where: {
       senderId: id,
+    },
+    select: {
+      id: true,
+      sender: {
+        select: { name: true },
+      },
+      recipient: {
+        select: { name: true },
+      },
+      amount: true,
+      status: true,
     },
   });
 

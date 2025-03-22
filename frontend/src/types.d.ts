@@ -19,3 +19,13 @@ export interface Transaction {
   previousHash: string;
   rejectionReason: string | null;
 }
+
+export interface TransactionMini {
+  id: string;
+  sender: { name: string };
+  recipient: {
+    name: string;
+  };
+  amount: number;
+  status: TransactionStatus;
+}
