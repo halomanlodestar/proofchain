@@ -14,6 +14,7 @@ import {
 
 export const getTransactionById = controller(async (req) => {
   const id = req.params.id;
+  console.log(id);
 
   const transaction = await prisma.transaction.findUnique({
     where: {

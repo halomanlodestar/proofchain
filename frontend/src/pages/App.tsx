@@ -13,6 +13,7 @@ import NotFound from "@/pages/NotFound.tsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner.tsx";
+import TransactionPage from "@/pages/transactions/id";
 
 const queryClient = new QueryClient();
 
@@ -34,8 +35,9 @@ const App = () => {
 
             {/* ProtectedRoutes */}
             <Route element={<ProtectedRoutes />}>
-              <Route path={"/transactions"} element={<Transactions />} />
-              <Route path={"/transactions/new"} element={<NewTransaction />} />
+              <Route path={"transactions"} element={<Transactions />} />
+              <Route path={"transactions/new"} element={<NewTransaction />} />
+              <Route path={"transactions/:id"} element={<TransactionPage />} />
               <Route path={"dashboard"} element={<Dashboard />} />
             </Route>
 
