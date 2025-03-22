@@ -42,7 +42,7 @@ const NewTransactionForm = () => {
     },
   });
 
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const fetchUsers = async (email: string): Promise<User[]> => {
     try {
@@ -59,6 +59,14 @@ const NewTransactionForm = () => {
     expirationTime,
     amount,
   }: CreateTransactionValues) => {
+    if (recipientId === user?.id) {
+      form.setError("recipientId", {
+        type: "manual",
+        message: "You cannot send money to yourself",
+      });
+      return;
+    }
+
     try {
       const { status } = await api.transaction.create(
         {
