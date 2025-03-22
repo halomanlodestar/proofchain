@@ -20,6 +20,9 @@ import { api } from "@/lib/api-client.ts";
 import { User } from "@/types";
 import { AxiosError } from "axios";
 import { oneDay } from "@/lib/constants.ts";
+import { toast } from "sonner";
+import { ZodError } from "zod";
+import { useAuth } from "@/hooks/use-auth.tsx";
 
 const ListItem = (user: User) => {
   return (
@@ -39,6 +42,8 @@ const NewTransactionForm = () => {
     },
   });
 
+  const { token } = useAuth();
+
   const fetchUsers = async (email: string): Promise<User[]> => {
     try {
       const res = await api.users.findByEmail(email);
@@ -49,8 +54,34 @@ const NewTransactionForm = () => {
     }
   };
 
-  const onSubmit = (values: CreateTransactionValues) => {
-    console.log(values);
+  const onSubmit = async ({
+    recipientId,
+    expirationTime,
+    amount,
+  }: CreateTransactionValues) => {
+    try {
+      const { status } = await api.transaction.create(
+        {
+          amount,
+          recipientId,
+          expirationTime: expirationTime.toISOString(),
+        },
+        token!,
+      );
+
+      if (status === 201) {
+        form.reset();
+        toast.success("Transaction successfully created");
+      }
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        toast.error(e.response?.data.message);
+      }
+
+      if (e instanceof ZodError) {
+        console.log(e);
+      }
+    }
   };
 
   return (
@@ -66,12 +97,10 @@ const NewTransactionForm = () => {
             <FormItem>
               <FormLabel>Recipient</FormLabel>
               <FormControl>
-                g
                 <DynamicInput
                   fetchFunction={fetchUsers}
                   renderListItem={(user) => <ListItem {...user} />}
                   onSelect={(user) => {
-                    console.log(user.id);
                     field.onChange(user.id);
                   }}
                 />

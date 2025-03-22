@@ -9,7 +9,9 @@ export const authMiddleware: Controller = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    res.status(401).json({});
+    res.status(401).json({
+      message: "Unauthorized",
+    });
     return;
   }
 
@@ -21,12 +23,16 @@ export const authMiddleware: Controller = async (req, res, next) => {
       exp: number;
     };
   } catch (error) {
-    res.status(401).json({});
+    res.status(401).json({
+      message: "Unauthorized",
+    });
     return;
   }
 
   if (Date.now() >= payload.exp) {
-    res.status(401).json({});
+    res.status(401).json({
+      message: "Unauthorized",
+    });
     return;
   }
 

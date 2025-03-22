@@ -62,12 +62,19 @@ export const api = {
    * - GET /transactions/from/:senderId/to/:recipientId
    */
   transaction: {
-    create: async (data: {
-      amount: number;
-      recipientId: string;
-      expirationTime: Date;
-    }) => {
-      return await client.post("/transactions", data);
+    create: async (
+      data: {
+        amount: number;
+        recipientId: string;
+        expirationTime: string;
+      },
+      token: string,
+    ) => {
+      return await client.post("/transactions", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
     },
     get: async (id: string) => {
       return await client.get(`/transactions/${id}`);
