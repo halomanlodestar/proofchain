@@ -2,11 +2,11 @@ import { useAuth } from "@/hooks/use-auth.tsx";
 import { Navigate, Outlet, useLocation } from "react-router";
 
 const ProtectedRoutes = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isCheckingAuth } = useAuth();
   const { pathname } = useLocation();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading || isCheckingAuth) {
+    return <div>Authenticating</div>;
   }
 
   if (!isAuthenticated) {

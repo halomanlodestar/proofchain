@@ -1,6 +1,6 @@
 import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
 import axios from "axios";
-import { User } from "@/types";
+import { Transaction, TransactionStatus, User } from "@/types";
 
 export const client = axios.create({
   baseURL: "http://localhost:3000/api/v1",
@@ -79,8 +79,11 @@ export const api = {
     get: async (id: string) => {
       return await client.get(`/transactions/${id}`);
     },
-    getFrom: async (id: string) => {
-      return await client.get(`/transactions/from/${id}`);
+    getFrom: async (id: string, type: TransactionStatus = "confirmed") => {
+      const status = type === "confirmed" ? "" : type;
+      return await client.get<{ transactions: Transaction[] }>(
+        `/transactions/from/${id}/${status}`,
+      );
     },
     getTo: async (id: string) => {
       return await client.get(`/transactions/to/${id}`);
