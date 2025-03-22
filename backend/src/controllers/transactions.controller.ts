@@ -113,6 +113,10 @@ export const createTransaction = controller(async (req) => {
 
   const { id: senderId } = req?.user!;
 
+  if (senderId === recipientId) {
+    throw new UnauthorizedError("You cannot send money to yourself");
+  }
+
   // Find last transaction made by the user
   const { signature: previousHash } = (await prisma.transaction.findFirst({
     where: {
