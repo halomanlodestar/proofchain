@@ -2,6 +2,8 @@
 
 import {
   acceptTransaction,
+  getPendingTransactionsFrom,
+  getRejectedTransactionsFrom,
   getTransactionBetween,
   getTransactionsFrom,
   getTransactionsTo,
@@ -24,6 +26,8 @@ transactionsRouter.post(
   createTransaction,
 );
 transactionsRouter.get("/from/:id", getTransactionsFrom);
+transactionsRouter.get("from/:id/pending", getPendingTransactionsFrom);
+transactionsRouter.get("from/:id/rejected", getRejectedTransactionsFrom);
 transactionsRouter.get("/to/:id", getTransactionsTo);
 transactionsRouter.get("/from/:senderId/to/:receiverId", getTransactionBetween);
 transactionsRouter.post("/accept/:id", authMiddleware, acceptTransaction);

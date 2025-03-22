@@ -94,6 +94,18 @@ export const getPendingTransactionsFrom = controller(async (req) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
+export const getRejectedTransactionsFrom = controller(async (req) => {
+  const id = req.params.id;
+
+  const transactions = await prisma.rejectedTransaction.findMany({
+    where: {
+      senderId: id,
+    },
+  });
+
+  return new HttpResponse(HttpStatus.OK, { transactions });
+});
+
 export const createTransaction = controller(async (req) => {
   const { amount, expirationTime, recipientId } = req.body as z.infer<
     typeof createTransactionSchema
