@@ -58,6 +58,7 @@ export const getTransactionsFrom = controller(async (req) => {
         status,
       },
       select: {
+        id: true,
         sender: {
           select: { name: true },
         },
@@ -71,6 +72,7 @@ export const getTransactionsFrom = controller(async (req) => {
 
     return new HttpResponse(HttpStatus.OK, { transactions });
   } catch (e: unknown) {
+    console.log(e);
     throw new InternalServerError("Internal server error");
   }
 });

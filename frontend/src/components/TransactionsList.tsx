@@ -1,5 +1,7 @@
 import { TransactionMini } from "@/types";
 import { Link } from "react-router";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { Ghost } from "lucide-react";
 
 const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
   return (
@@ -28,16 +30,35 @@ const TransactionsList = ({
   transactions?: TransactionMini[];
 }) => {
   if (!transactions) {
-    return <div>Loading</div>;
+    // Create a loading state using Skeleton component similar to that of the list of transactions
+
+    return (
+      <div className={"space-y-2"}>
+        <Skeleton className={"w-full h-24"} />
+        <Skeleton className={"w-full h-24"} />
+        <Skeleton className={"w-full h-24"} />
+        <Skeleton className={"w-full h-24"} />
+        <Skeleton className={"w-full h-24"} />
+      </div>
+    );
+  }
+
+  if (transactions.length === 0) {
+    return (
+      <div className={"flex items-center justify-center h-96"}>
+        <div className={"flex justify-center items-center flex-col"}>
+          <Ghost className={"animate-bounce"} size={"100"} />
+          <p className={"text-xl"}>No transactions</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className={"space-y-2"}>
-      {transactions.length === 0
-        ? "No Transaction Here"
-        : transactions.map((transaction) => (
-            <TransactionItem key={transaction.id} transaction={transaction} />
-          ))}
+      {transactions.map((transaction) => (
+        <TransactionItem key={transaction.id} transaction={transaction} />
+      ))}
     </div>
   );
 };

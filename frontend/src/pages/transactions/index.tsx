@@ -12,12 +12,15 @@ const Transactions = () => {
   const [searchParams, setSearchParam] = useSearchParams();
   const { user } = useAuth();
 
-  const tab = (searchParams.get("tab") || "confirmed") as TransactionStatus;
+  const tab = (searchParams.get("tab") || "successful") as TransactionStatus;
 
   const { data: transactions } = useQuery({
     queryKey: ["transactions", tab],
     queryFn: async () => {
-      const res = await api.transaction.getFrom(user!.id, tab);
+      const res = await api.transaction.getFrom(
+        user!.id,
+        tab.toUpperCase() as TransactionStatus,
+      );
       return res.data.transactions;
     },
   });
@@ -44,8 +47,8 @@ const Transactions = () => {
       <Tabs defaultValue={tab} className="w-full">
         <TabsList>
           <TabsTrigger
-            onClick={() => setSearchParam({ tab: "confirmed" })}
-            value="confirmed"
+            onClick={() => setSearchParam({ tab: "successful" })}
+            value="successful"
             className={"w-1/2"}
           >
             Confirmed

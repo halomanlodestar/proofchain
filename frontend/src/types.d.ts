@@ -20,6 +20,12 @@ export interface Transaction {
   rejectionReason: string | null;
 }
 
+export interface TransactionFilled
+  extends Omit<Transaction, "recipientId" | "senderId"> {
+  recipient: User;
+  sender: Pick<User, "name">;
+}
+
 export interface TransactionMini {
   id: string;
   sender: { name: string };
