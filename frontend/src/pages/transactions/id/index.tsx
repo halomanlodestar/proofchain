@@ -8,40 +8,16 @@ import { Button } from "@/components/ui/button.tsx";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
-const acceptTransaction = async (id: string, token: string) => {
-  try {
-    await api.transaction.accept(id, token);
-  } catch (e: unknown) {
-    if (e instanceof AxiosError) {
-      if (e.response?.status === 401) {
-        toast.error("You are not authorized to perform this action");
-      } else {
-        toast.error("An error occurred. Please try again later");
-      }
-    }
-  }
-};
-
-const rejectTransaction = async (id: string, token: string) => {
-  try {
-    await api.transaction.reject(id, token);
-  } catch (e: unknown) {
-    if (e instanceof AxiosError) {
-      if (e.response?.status === 401) {
-        toast.error("You are not authorized to perform this action");
-      } else {
-        toast.error("An error occurred. Please try again later");
-      }
-    }
-  }
-};
-
 const TransactionPage = () => {
   const params = useParams();
   const { user, token } = useAuth();
   const { id } = params;
 
-  const { data: transaction, isLoading } = useQuery({
+  const {
+    data: transaction,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["transaction", id],
     queryFn: async () => {
       const response = await api.transaction.get(id!);
@@ -49,6 +25,45 @@ const TransactionPage = () => {
       return response.data.transaction;
     },
   });
+
+  const acceptTransaction = async (id: string, token: string) => {
+    try {
+      const { status } = await api.transaction.accept(id, token);
+
+      if (status === 204) {
+        toast.success("Transaction accepted successfully");
+        await refetch();
+      }
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        // console.log(e);
+        if (e.response?.status === 401) {
+          toast.error("You are not authorized to perform this action");
+        } else {
+          toast.error("An error occurred. Please try again later");
+        }
+      }
+    }
+  };
+
+  const rejectTransaction = async (id: string, token: string) => {
+    try {
+      const { status } = await api.transaction.reject(id, token);
+
+      if (status === 204) {
+        toast.success("Transaction accepted successfully");
+        await refetch();
+      }
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        if (e.response?.status === 401) {
+          toast.error("You are not authorized to perform this action");
+        } else {
+          toast.error("An error occurred. Please try again later");
+        }
+      }
+    }
+  };
 
   if (isLoading) {
     return (

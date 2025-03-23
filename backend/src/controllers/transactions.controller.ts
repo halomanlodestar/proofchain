@@ -8,6 +8,7 @@ import { HttpResponse, HttpStatus } from "../utils/http-utils";
 import { controller } from "../utils/async-controller";
 import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
 import {
+  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
@@ -169,22 +170,26 @@ export const acceptTransaction = controller(async (req) => {
   console.log("reached controller");
 
   const id = req.params.id;
+  const { id: recipientId } = req.user!;
 
   try {
     const transaction = await prisma.transaction.update({
       where: {
         id,
+        recipientId,
+        status: "PENDING",
       },
       data: {
         status: "SUCCESSFUL",
       },
     });
 
-    return new HttpResponse(HttpStatus.CREATED, { transaction });
+    return new HttpResponse(HttpStatus.NO_CONTENT);
   } catch (e: unknown) {
-    const err = e as { code: string };
-    if (err.code === "P2025") {
-      throw new NotFoundError("Transaction not found");
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2025") {
+        throw new NotFoundError("Transaction not found");
+      }
     }
 
     throw new InternalServerError("Internal server error");
@@ -193,22 +198,26 @@ export const acceptTransaction = controller(async (req) => {
 
 export const rejectTransaction = controller(async (req) => {
   const id = req.params.id;
+  const { id: recipientId } = req.user!;
 
   try {
     const transaction = await prisma.transaction.update({
       where: {
         id,
+        recipientId,
+        status: "PENDING",
       },
       data: {
         status: "REJECTED",
       },
     });
 
-    return new HttpResponse(HttpStatus.NO_CONTENT, { transaction });
+    return new HttpResponse(HttpStatus.NO_CONTENT);
   } catch (e: unknown) {
-    const err = e as { code: string };
-    if (err.code === "P2025") {
-      throw new NotFoundError("Transaction not found");
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2025") {
+        throw new NotFoundError("Transaction not found");
+      }
     }
 
     throw new InternalServerError("Internal server error");
