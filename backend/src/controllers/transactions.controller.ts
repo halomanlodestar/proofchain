@@ -11,6 +11,8 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
+import { Prisma, TransactionStatus } from "@prisma/client";
+import { logger } from "../utils/logger";
 
 export const getTransactionById = controller(async (req) => {
   const id = req.params.id;
@@ -46,25 +48,31 @@ export const getTransactionById = controller(async (req) => {
 });
 
 export const getTransactionsFrom = controller(async (req) => {
-  const id = req.params.id;
+  const senderId = req.params.id;
+  const status = (req.query.status as TransactionStatus) || undefined;
 
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      senderId: id,
-    },
-    select: {
-      sender: {
-        select: { name: true },
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        senderId,
+        status,
       },
-      recipient: {
-        select: { name: true },
+      select: {
+        sender: {
+          select: { name: true },
+        },
+        recipient: {
+          select: { name: true },
+        },
+        amount: true,
+        status: true,
       },
-      amount: true,
-      status: true,
-    },
-  });
+    });
 
-  return new HttpResponse(HttpStatus.OK, { transactions });
+    return new HttpResponse(HttpStatus.OK, { transactions });
+  } catch (e: unknown) {
+    throw new InternalServerError("Internal server error");
+  }
 });
 
 export const getTransactionsTo = controller(async (req) => {
@@ -94,7 +102,7 @@ export const getTransactionBetween = controller(async (req) => {
   const senderId = req.params.senderId;
   const recipientId = req.params.recipientId;
 
-  const transactions = await prisma.transaction.findManyd({
+  const transactions = await prisma.transaction.findMany({
     where: {
       senderId,
       recipientId,
@@ -170,22 +178,35 @@ export const acceptTransaction = controller(async (req) => {
 
     return new HttpResponse(HttpStatus.CREATED, { transaction });
   } catch (e: unknown) {
-    if (e instanceof PrismaE) {
-    throw new NotFoundError("Transaction not found");
+    const err = e as { code: string };
+    if (err.code === "P2025") {
+      throw new NotFoundError("Transaction not found");
+    }
+
+    throw new InternalServerError("Internal server error");
   }
 });
 
 export const rejectTransaction = controller(async (req) => {
   const id = req.params.id;
 
-  await prisma.transaction.update({
-    where: {
-      id,
-    },
-    data: {
-      status: "REJECTED",
-    },
-  });
+  try {
+    const transaction = await prisma.transaction.update({
+      where: {
+        id,
+      },
+      data: {
+        status: "REJECTED",
+      },
+    });
 
-  return new HttpResponse(HttpStatus.NO_CONTENT);
+    return new HttpResponse(HttpStatus.NO_CONTENT, { transaction });
+  } catch (e: unknown) {
+    const err = e as { code: string };
+    if (err.code === "P2025") {
+      throw new NotFoundError("Transaction not found");
+    }
+
+    throw new InternalServerError("Internal server error");
+  }
 });

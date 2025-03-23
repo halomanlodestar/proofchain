@@ -81,10 +81,10 @@ export const api = {
         `/transactions/${id}`,
       );
     },
-    getFrom: async (id: string, type: TransactionStatus = "confirmed") => {
-      const status = type === "confirmed" ? "" : type;
+    getFrom: async (id: string, status: TransactionStatus = "SUCCESSFUL") => {
+      // const status = type === "SUCCESSFUL" : type;
       return await client.get<{ transactions: TransactionMini[] }>(
-        `/transactions/from/${id}/${status}`,
+        `/transactions/from/${id}?status=${status}`,
       );
     },
     getTo: async (id: string) => {

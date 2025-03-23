@@ -4,7 +4,7 @@ export type User = {
   email: string;
 };
 
-export type TransactionStatus = "pending" | "confirmed" | "rejected";
+export type TransactionStatus = "PENDING" | "SUCCESSFUL" | "REJECTED";
 
 export interface Transaction {
   id: string;
