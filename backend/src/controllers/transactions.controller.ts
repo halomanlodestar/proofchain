@@ -94,56 +94,10 @@ export const getTransactionBetween = controller(async (req) => {
   const senderId = req.params.senderId;
   const recipientId = req.params.recipientId;
 
-  const transactions = await prisma.transaction.findMany({
+  const transactions = await prisma.transaction.findManyd({
     where: {
       senderId,
       recipientId,
-    },
-  });
-
-  return new HttpResponse(HttpStatus.OK, { transactions });
-});
-
-export const getPendingTransactionsFrom = controller(async (req) => {
-  const id = req.params.id;
-
-  const transactions = await prisma.pendingTransaction.findMany({
-    where: {
-      senderId: id,
-    },
-    select: {
-      id: true,
-      sender: {
-        select: { name: true },
-      },
-      recipient: {
-        select: { name: true },
-      },
-      amount: true,
-      status: true,
-    },
-  });
-
-  return new HttpResponse(HttpStatus.OK, { transactions });
-});
-
-export const getRejectedTransactionsFrom = controller(async (req) => {
-  const id = req.params.id;
-
-  const transactions = await prisma.rejectedTransaction.findMany({
-    where: {
-      senderId: id,
-    },
-    select: {
-      id: true,
-      sender: {
-        select: { name: true },
-      },
-      recipient: {
-        select: { name: true },
-      },
-      amount: true,
-      status: true,
     },
   });
 
@@ -158,8 +112,6 @@ export const createTransaction = controller(async (req) => {
   >;
 
   const { id: senderId } = req?.user!;
-
-  console.log(senderId, recipientId);
 
   if (senderId === recipientId) {
     throw new UnauthorizedError("You cannot send money to yourself");
@@ -185,7 +137,7 @@ export const createTransaction = controller(async (req) => {
   );
 
   try {
-    await prisma.pendingTransaction.create({
+    await prisma.transaction.create({
       data: {
         amount,
         expirationTime,
@@ -206,90 +158,31 @@ export const createTransaction = controller(async (req) => {
 export const acceptTransaction = controller(async (req) => {
   const id = req.params.id;
 
-  const pendingTransaction = await prisma.pendingTransaction.findUnique({
-    where: {
-      id,
-    },
-  });
+  try {
+    const transaction = await prisma.transaction.update({
+      where: {
+        id,
+      },
+      data: {
+        status: "SUCCESSFUL",
+      },
+    });
 
-  if (!pendingTransaction) {
+    return new HttpResponse(HttpStatus.CREATED, { transaction });
+  } catch (e: unknown) {
+    if (e instanceof PrismaE) {
     throw new NotFoundError("Transaction not found");
   }
-
-  const { amount, expirationTime, recipientId, senderId, previousHash } =
-    jwt.verify(pendingTransaction.signature, process.env.JWT_SECRET!) as {
-      amount: number;
-      expirationTime: string;
-      recipientId: string;
-      senderId: string;
-      previousHash: string;
-    };
-
-  const { id: userId } = req?.user!;
-
-  // console.log(userId, recipientId);
-
-  if (userId !== recipientId) {
-    throw new UnauthorizedError("Unauthorized");
-  }
-
-  const transaction = await prisma.transaction.create({
-    data: {
-      amount,
-      expirationTime,
-      acceptedAt: new Date().toISOString(),
-      recipientId,
-      senderId,
-      signature: pendingTransaction.signature,
-      previousHash,
-      status: "SUCCESSFUL",
-    },
-  });
-
-  await prisma.pendingTransaction.delete({
-    where: {
-      id,
-    },
-  });
-
-  return new HttpResponse(HttpStatus.CREATED, { transaction });
 });
 
 export const rejectTransaction = controller(async (req) => {
   const id = req.params.id;
 
-  const pendingTransaction = await prisma.pendingTransaction.findUnique({
+  await prisma.transaction.update({
     where: {
       id,
     },
-  });
-
-  if (!pendingTransaction) {
-    throw new NotFoundError("Transaction not found");
-  }
-
-  const { recipientId } = jwt.verify(
-    pendingTransaction.signature,
-    process.env.JWT_SECRET!,
-  ) as {
-    recipientId: number;
-  };
-
-  const { id: userId } = req?.user!;
-
-  if (userId !== recipientId) {
-    throw new UnauthorizedError("Unauthorized");
-  }
-
-  await prisma.pendingTransaction.delete({
-    where: {
-      id,
-    },
-  });
-
-  prisma.rejectedTransaction.create({
     data: {
-      ...pendingTransaction,
       status: "REJECTED",
     },
   });

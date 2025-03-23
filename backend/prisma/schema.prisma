@@ -21,22 +21,14 @@ enum TransactionStatus {
 }
 
 model User {
-  id                           String                @id @default(cuid())
-  name                         String
-  email                        String                @unique
-  password                     String
-  token                        String?
+  id                   String        @id @default(cuid())
+  name                 String
+  email                String        @unique
+  password             String
+  token                String?
   // Transaction relations
-  sentTransactions             Transaction[]         @relation("sender")
-  receivedTransactions         Transaction[]         @relation("recipient")
-  // PendingTransaction relations
-  sentPendingTransactions      PendingTransaction[]  @relation("pendingSender")
-  receivedPendingTransactions  PendingTransaction[]  @relation("pendingRecipient")
-  userPendingTransactions      PendingTransaction[]  @relation("userPending")
-  // RejectedTransaction relations
-  sentRejectedTransactions     RejectedTransaction[] @relation("rejectedSender")
-  receivedRejectedTransactions RejectedTransaction[] @relation("rejectedRecipient")
-  userRejectedTransactions     RejectedTransaction[] @relation("userRejected")
+  sentTransactions     Transaction[] @relation("sender")
+  receivedTransactions Transaction[] @relation("recipient")
 }
 
 model Transaction {
@@ -47,43 +39,9 @@ model Transaction {
   recipientId    String
   recipient      User              @relation(name: "recipient", map: "recipient", fields: [recipientId], references: [id])
   amount         Float
-  acceptedAt     DateTime
-  status         TransactionStatus @default(SUCCESSFUL)
-  expirationTime DateTime
-  signature      String
-  previousHash   String
-}
-
-model PendingTransaction {
-  id             String            @id @default(cuid())
-  initialisedAt  DateTime          @default(now())
-  senderId       String
-  sender         User              @relation("pendingSender", fields: [senderId], references: [id])
-  recipientId    String
-  recipient      User              @relation("pendingRecipient", fields: [recipientId], references: [id])
-  amount         Float
+  acceptedAt     DateTime?
   status         TransactionStatus @default(PENDING)
   expirationTime DateTime
   signature      String
   previousHash   String
-  user           User?             @relation("userPending", fields: [userId], references: [id])
-  userId         String?
-}
-
-model RejectedTransaction {
-  id              String            @id @default(cuid())
-  initialisedAt   DateTime          @default(now())
-  senderId        String
-  sender          User              @relation("rejectedSender", fields: [senderId], references: [id])
-  recipientId     String
-  recipient       User              @relation("rejectedRecipient", fields: [recipientId], references: [id])
-  amount          Float
-  acceptedAt      DateTime?
-  status          TransactionStatus @default(REJECTED)
-  expirationTime  DateTime
-  signature       String
-  previousHash    String
-  rejectionReason String?
-  user            User?             @relation("userRejected", fields: [userId], references: [id])
-  userId          String?
 }
