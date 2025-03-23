@@ -100,11 +100,27 @@ export const api = {
         `/transactions/from/${senderId}/to/${recipientId}`,
       );
     },
-    accept: async (id: string) => {
-      return await client.put(`/transactions/accept/${id}`);
+    accept: async (id: string, token: string) => {
+      return await client.put(
+        `/transactions/accept/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
     },
-    reject: async (id: string) => {
-      return await client.put(`/transactions/reject/${id}`);
+    reject: async (id: string, token: string) => {
+      return await client.put(
+        `/transactions/reject/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
     },
   },
 

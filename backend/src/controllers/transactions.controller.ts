@@ -166,6 +166,8 @@ export const createTransaction = controller(async (req) => {
 });
 
 export const acceptTransaction = controller(async (req) => {
+  console.log("reached controller");
+
   const id = req.params.id;
 
   try {

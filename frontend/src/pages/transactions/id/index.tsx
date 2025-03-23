@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button.tsx";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
-const acceptTransaction = async (id: string) => {
+const acceptTransaction = async (id: string, token: string) => {
   try {
-    await api.transaction.accept(id);
+    await api.transaction.accept(id, token);
   } catch (e: unknown) {
     if (e instanceof AxiosError) {
       if (e.response?.status === 401) {
@@ -22,9 +22,9 @@ const acceptTransaction = async (id: string) => {
   }
 };
 
-const rejctTransaction = async (id: string) => {
+const rejectTransaction = async (id: string, token: string) => {
   try {
-    await api.transaction.reject(id);
+    await api.transaction.reject(id, token);
   } catch (e: unknown) {
     if (e instanceof AxiosError) {
       if (e.response?.status === 401) {
@@ -38,7 +38,7 @@ const rejctTransaction = async (id: string) => {
 
 const TransactionPage = () => {
   const params = useParams();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { id } = params;
 
   const { data: transaction, isLoading } = useQuery({
@@ -104,11 +104,11 @@ const TransactionPage = () => {
         <div className={"flex justify-between"}>
           <Button
             variant={"destructive"}
-            onClick={() => acceptTransaction(id!)}
+            onClick={() => rejectTransaction(id!, token!)}
           >
             Reject Transaction
           </Button>
-          <Button onClick={() => rejctTransaction(id!)}>
+          <Button onClick={() => acceptTransaction(id!, token!)}>
             Accept Transaction
           </Button>
         </div>
