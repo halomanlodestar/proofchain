@@ -9,8 +9,9 @@ export const authMiddleware: Controller = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    // throw new UnauthorizedError("Unauthorized by middleware");
-    res.status(401).json({});
+    res.status(401).json({
+      message: "Unauthorized",
+    });
     return;
   }
 
@@ -22,20 +23,23 @@ export const authMiddleware: Controller = async (req, res, next) => {
       exp: number;
     };
   } catch (error) {
-    res.status(401).json({});
+    res.status(401).json({
+      message: "Unauthorized",
+    });
     return;
   }
 
   if (Date.now() >= payload.exp) {
-    // throw new UnauthorizedError("Unauthorized by middleware");
-    res.status(401).json({});
+    res.status(401).json({
+      message: "Unauthorized",
+    });
     return;
   }
 
   req.user =
     (await prisma.user.findUnique({
       where: {
-        id: Number(payload.id),
+        id: payload.id,
       },
       select: {
         id: true,

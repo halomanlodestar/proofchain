@@ -21,52 +21,27 @@ enum TransactionStatus {
 }
 
 model User {
-  id                   Int           @id @default(autoincrement())
+  id                   String        @id @default(cuid())
   name                 String
   email                String        @unique
   password             String
-  SenderTransaction    Transaction[] @relation("sender")
-  recipientTransaction Transaction[] @relation("recipient")
   token                String?
+  // Transaction relations
+  sentTransactions     Transaction[] @relation("sender")
+  receivedTransactions Transaction[] @relation("recipient")
 }
 
 model Transaction {
-  id             Int               @id @default(autoincrement())
+  id             String            @id @default(cuid())
   initialisedAt  DateTime          @default(now())
-  senderId       Int
+  senderId       String
   sender         User              @relation(name: "sender", map: "sender", fields: [senderId], references: [id])
-  recipientId    Int
+  recipientId    String
   recipient      User              @relation(name: "recipient", map: "recipient", fields: [recipientId], references: [id])
   amount         Float
-  acceptedAt     DateTime
-  status         TransactionStatus @default(SUCCESSFUL)
-  expirationTime DateTime
-  signature      String
-  previousHash   String
-}
-
-model PendingTransaction {
-  id             Int               @id @default(autoincrement())
-  initialisedAt  DateTime          @default(now())
-  senderId       Int
-  recipientId    Int
-  amount         Float
+  acceptedAt     DateTime?
   status         TransactionStatus @default(PENDING)
   expirationTime DateTime
   signature      String
   previousHash   String
-}
-
-model RejectedTransaction {
-  id              Int               @id @default(autoincrement())
-  initialisedAt   DateTime          @default(now())
-  senderId        Int
-  recipientId     Int
-  amount          Float
-  acceptedAt      DateTime?
-  status          TransactionStatus @default(PENDING)
-  expirationTime  DateTime
-  signature       String
-  previousHash    String
-  rejectionReason String?
 }

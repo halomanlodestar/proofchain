@@ -12,18 +12,17 @@ import {
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
 import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
+import { logger } from "../utils/logger";
 
 const ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15;
 const REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 7;
 
-export const login = controller(async (req, res, next) => {
+export const login = controller(async (req, res) => {
   const { email, password } = req.body;
 
   const loggedIn = req.cookies.refresh_token;
 
   if (loggedIn) {
-    // res.status(200).json({ message: "Already Logged In" });
-    // return next();
     return new HttpResponse(200, { message: "Already Logged In" });
   }
 
@@ -34,16 +33,12 @@ export const login = controller(async (req, res, next) => {
   });
 
   if (!user) {
-    // res.status(404).json({ message: "Invalid credentials" });
-    // return next();
     throw new NotFoundError("Invalid credentials");
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    // res.status(401).json({ message: "Invalid credentials" });
-    // return next();
     return new HttpResponse(401, { message: "Invalid credentials" });
   }
 
@@ -62,21 +57,19 @@ export const login = controller(async (req, res, next) => {
       },
     });
   } catch (error) {
-    // res.status(500).json({ message: "Internal Server Error" });
-    // return next();
     throw new InternalServerError("Internal Server Error");
   }
 
   res.cookie("refresh_token", refreshToken, {
     expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
     httpOnly: true,
+    sameSite: "lax",
   });
 
-  // res.status(200).json({ message: "Logged in" });
   return new HttpResponse(200, { message: "Logged in" });
 });
 
-export const register = controller(async (req, res, next) => {
+export const register = controller(async (req) => {
   const { name, email, password } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -90,31 +83,23 @@ export const register = controller(async (req, res, next) => {
       },
     });
 
-    // res.status(201).json({ user });
     return new HttpResponse(201, { user });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      // res.status(400).json({ message: "Already Registered" });
-      // return next();
+    if (error instanceof Prisma.PrismaClientKnownRequestError)
       throw new BadRequestError("Already Registered");
-    }
   }
 });
 
-export const logout = controller((req, res, next) => {
-  // res.clearCookie("access_token");
+export const logout = controller((_req, res) => {
   res.clearCookie("refresh_token");
 
-  // res.status(200).json({ message: "Logged out" });
   return new HttpResponse(204);
 });
 
-export const refresh = controller(async (req, res, next) => {
+export const refresh = controller(async (req) => {
   const refreshToken = req.cookies.refresh_token;
 
   if (!refreshToken) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -123,8 +108,6 @@ export const refresh = controller(async (req, res, next) => {
   try {
     payload = jwt.verify(refreshToken, process.env.JWT_SECRET!);
   } catch (error) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -135,8 +118,6 @@ export const refresh = controller(async (req, res, next) => {
   });
 
   if (!user) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -146,11 +127,6 @@ export const refresh = controller(async (req, res, next) => {
     {},
   );
 
-  // res.cookie("access_token", accessToken, {
-  // 	expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRY),
-  // });
-
-  // res.status(200).json({ accessToken });
   return new HttpResponse(200, { accessToken });
 });
 
@@ -158,8 +134,6 @@ export const me = controller(async (req) => {
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   if (!accessToken) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
@@ -168,31 +142,27 @@ export const me = controller(async (req) => {
   try {
     payload = jwt.verify(accessToken, process.env.JWT_SECRET!);
   } catch (error) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
-  console.log(payload);
+  logger.info(payload);
 
   const user = await prisma.user.findUnique({
     where: {
       id: payload.id,
     },
     select: {
+      id: true,
       name: true,
       email: true,
     },
   });
 
   if (!user) {
-    // res.status(401).json({ message: "Unauthorized" });
-    // return next();
     throw new UnauthorizedError("Unauthorized");
   }
 
-  console.log("user", user);
+  logger.info("user", user);
 
-  // res.status(200).json({ user });
   return new HttpResponse(200, { user });
 });

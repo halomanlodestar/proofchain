@@ -1,121 +1,94 @@
-/** @format */
+import { createContext, useContext, useEffect, useState } from "react";
+import { api } from "@/lib/api-client.ts";
+import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
+import { useLocation, useNavigate } from "react-router";
+import { User } from "@/types";
+import { AxiosError } from "axios";
+import { refresh } from "@/lib/utils.ts";
 
-import { API_URL } from "@/lib/constants";
-import { redirect } from "@tanstack/react-router";
-import axios from "axios";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { AuthError, FetchError } from "@/lib/errors";
-import { MeUser } from "../../types";
-
-interface AuthContextData {
-  token?: string;
-  user?: MeUser;
-  isLoggedIn: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextData | null>(null);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | undefined>();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [me, setMe] = useState<MeUser | undefined>();
+const useAuthProvider = () => {
+  const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    (async () => {
-      try {
-        const a = (await axios.get(`${API_URL}/auth/me`)).data as {
-          token: string;
-          user: MeUser;
-        };
-        setToken(a.token);
-        setMe(a.user);
-        setIsLoggedIn(true);
-      } catch (error) {
-        setToken(undefined);
-      }
-    })();
+    if (!isAuthenticated) {
+      console.log("refreshing");
+      refreshToken();
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (token) me().then((user) => setUser(user));
+    setIsLoading(false);
   }, [token]);
 
-  const signIn = async (email: string, password: string) => {
-    let res;
-
-    try {
-      res = await axios.post(`${API_URL}/auth/signin`, {
-        email,
-        password,
-      });
-    } catch (error) {
-      throw new FetchError("An Error Occurred");
-    }
-
-    if (res.status === 302) {
-      throw redirect({
-        to: "/",
-      });
-    }
-
-    throw new AuthError("Invalid Credentials");
+  const signUp = async (data: SignUpFormValues) => {
+    return await api.auth.signUp(data);
   };
 
-  const signUp = async (name: string, email: string, password: string) => {
-    let res;
-
-    try {
-      res = await axios.post(`${API_URL}/auth/signup`, {
-        name,
-        email,
-        password,
-      });
-    } catch (error) {
-      throw new FetchError("An Error Occurred");
-    }
-
-    if (res.status === 302) {
-      throw redirect({
-        to: "/",
-      });
-    }
-
-    throw new AuthError("Email is already registered");
+  const signIn = async (data: SignInFormValues) => {
+    const response = await api.auth.signIn(data);
+    await refreshToken();
+    return response;
   };
 
   const signOut = async () => {
-    let res;
-
-    try {
-      res = await axios.post(`${API_URL}/auth/signout`);
-    } catch (error) {
-      throw new FetchError("An Error Occurred");
-    }
-
-    if (res.status === 302) {
-      setToken(undefined);
-      setIsLoggedIn(false);
-
-      throw redirect({
-        to: "/",
-      });
-    }
-
-    throw new AuthError("You are not signed in");
+    await api.auth.signOut();
+    refresh();
   };
 
-  return (
-    <AuthContext.Provider
-      value={{ token, signIn, signUp, signOut, isLoggedIn }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const me = async () => {
+    return await api.auth.me(token!);
+  };
+
+  const refreshToken = async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await api.auth.refreshToken();
+
+      setToken(data.accessToken);
+      setIsAuthenticated(true);
+    } catch (err) {
+      if (err instanceof AxiosError && !location.pathname.includes("auth")) {
+        if (err.status === 401) {
+          await signOut();
+          return navigate("/auth/signin");
+        }
+      }
+    } finally {
+      setIsCheckingAuth(false);
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    user,
+    isCheckingAuth,
+    isLoading,
+    token,
+    isAuthenticated,
+    signUp,
+    signIn,
+    signOut,
+    refreshToken,
+    me,
+  };
 };
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const auth = useAuthProvider();
+
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+};
+
+const AuthContext = createContext<ReturnType<typeof useAuthProvider> | null>(
+  null,
+);
 
 export const useAuth = () => useContext(AuthContext)!;
