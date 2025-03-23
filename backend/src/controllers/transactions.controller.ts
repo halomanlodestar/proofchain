@@ -181,6 +181,7 @@ export const acceptTransaction = controller(async (req) => {
       },
       data: {
         status: "SUCCESSFUL",
+        acceptedAt: new Date(),
       },
     });
 

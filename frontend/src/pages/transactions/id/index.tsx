@@ -21,7 +21,6 @@ const TransactionPage = () => {
     queryKey: ["transaction", id],
     queryFn: async () => {
       const response = await api.transaction.get(id!);
-      console.log(response);
       return response.data.transaction;
     },
   });
@@ -36,7 +35,6 @@ const TransactionPage = () => {
       }
     } catch (e: unknown) {
       if (e instanceof AxiosError) {
-        // console.log(e);
         if (e.response?.status === 401) {
           toast.error("You are not authorized to perform this action");
         } else {
@@ -76,7 +74,7 @@ const TransactionPage = () => {
     );
   }
 
-  if (!transaction) {
+  if (!transaction || !id) {
     return <NotFound />;
   }
 
@@ -115,7 +113,7 @@ const TransactionPage = () => {
           {transaction.status}
         </div>
       </div>
-      {isRecipient && (
+      {isRecipient && transaction.status === "PENDING" && (
         <div className={"flex justify-between"}>
           <Button
             variant={"destructive"}
