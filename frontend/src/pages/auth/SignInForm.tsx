@@ -14,7 +14,7 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth.tsx";
 import { AxiosError } from "axios";
@@ -31,6 +31,7 @@ const SignInForm = () => {
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [success, setSuccess] = useState(false);
 
   async function onSubmit(values: SignInFormValues) {
@@ -43,7 +44,7 @@ const SignInForm = () => {
         form.reset();
 
         setTimeout(() => {
-          navigate("/");
+          navigate(params.get("redirect") || "/");
         }, 2000);
       }
     } catch (e: unknown) {

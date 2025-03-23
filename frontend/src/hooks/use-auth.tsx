@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { api } from "@/lib/api-client.ts";
 import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { User } from "@/types";
 import { AxiosError } from "axios";
+import { refresh } from "@/lib/utils.ts";
 
 const useAuthProvider = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -12,6 +13,14 @@ const useAuthProvider = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      console.log("refreshing");
+      refreshToken();
+    }
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -30,7 +39,8 @@ const useAuthProvider = () => {
   };
 
   const signOut = async () => {
-    return await api.auth.signOut();
+    await api.auth.signOut();
+    refresh();
   };
 
   const me = async () => {
@@ -45,7 +55,7 @@ const useAuthProvider = () => {
       setToken(data.accessToken);
       setIsAuthenticated(true);
     } catch (err) {
-      if (err instanceof AxiosError) {
+      if (err instanceof AxiosError && !location.pathname.includes("auth")) {
         if (err.status === 401) {
           await signOut();
           return navigate("/auth/signin");

@@ -12,14 +12,15 @@ const Transactions = () => {
   const [searchParams, setSearchParam] = useSearchParams();
   const { user } = useAuth();
 
-  const tab = (searchParams.get("tab") || "successful") as TransactionStatus;
+  const status = (searchParams.get("status") ||
+    "successful") as TransactionStatus;
 
   const { data: transactions } = useQuery({
-    queryKey: ["transactions", tab],
+    queryKey: ["transactions", status],
     queryFn: async () => {
       const res = await api.transaction.getFrom(
         user!.id,
-        tab.toUpperCase() as TransactionStatus,
+        status.toUpperCase() as TransactionStatus,
       );
       return res.data.transactions;
     },
@@ -44,24 +45,24 @@ const Transactions = () => {
         </>
       </div>
 
-      <Tabs defaultValue={tab} className="w-full">
+      <Tabs defaultValue={status} className="w-full">
         <TabsList>
           <TabsTrigger
-            onClick={() => setSearchParam({ tab: "successful" })}
+            onClick={() => setSearchParam({ status: "successful" })}
             value="successful"
             className={"w-1/2"}
           >
             Confirmed
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => setSearchParam({ tab: "pending" })}
+            onClick={() => setSearchParam({ status: "pending" })}
             value="pending"
             className={"w-1/2"}
           >
             Pending
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => setSearchParam({ tab: "rejected" })}
+            onClick={() => setSearchParam({ status: "rejected" })}
             value="rejected"
             className={"w-1/2"}
           >

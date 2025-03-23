@@ -47,7 +47,7 @@ const TransactionsList = ({
     return (
       <div className={"flex items-center justify-center h-96"}>
         <div className={"flex justify-center items-center flex-col"}>
-          <Ghost className={"animate-bounce"} size={"100"} />
+          <Ghost size={"100"} />
           <p className={"text-xl"}>No transactions</p>
         </div>
       </div>

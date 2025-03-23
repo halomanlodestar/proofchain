@@ -100,7 +100,7 @@ const TransactionPage = () => {
           {transaction.status}
         </div>
       </div>
-      {!isRecipient && (
+      {isRecipient && (
         <div className={"flex justify-between"}>
           <Button
             variant={"destructive"}
