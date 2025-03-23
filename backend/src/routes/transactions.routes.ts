@@ -4,6 +4,7 @@ import {
   acceptTransaction,
   getTransactionBetween,
   getTransactionsFrom,
+  getTransactionsIncluding,
   getTransactionsTo,
   rejectTransaction,
 } from "../controllers/transactions.controller";
@@ -26,6 +27,7 @@ transactionsRouter.post(
 );
 transactionsRouter.get("/from/:id", getTransactionsFrom);
 transactionsRouter.get("/to/:id", getTransactionsTo);
+transactionsRouter.get("/including/:id", getTransactionsIncluding);
 transactionsRouter.get("/from/:senderId/to/:receiverId", getTransactionBetween);
 transactionsRouter.put("/accept/:id", authMiddleware, acceptTransaction);
 transactionsRouter.put("/reject/:id", authMiddleware, rejectTransaction);

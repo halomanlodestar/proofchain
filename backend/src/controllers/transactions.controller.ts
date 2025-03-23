@@ -8,12 +8,10 @@ import { HttpResponse, HttpStatus } from "../utils/http-utils";
 import { controller } from "../utils/async-controller";
 import { InternalServerError } from "../utils/http-utils/errors/5xx-error";
 import {
-  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
 } from "../utils/http-utils/errors/4xx-error";
 import { Prisma, TransactionStatus } from "@prisma/client";
-import { logger } from "../utils/logger";
 
 export const getTransactionById = controller(async (req) => {
   const id = req.params.id;
@@ -46,6 +44,38 @@ export const getTransactionById = controller(async (req) => {
   });
 
   return new HttpResponse(HttpStatus.OK, { transaction });
+});
+
+export const getTransactionsIncluding = controller(async (req) => {
+  const id = req.params.id;
+  const status = (req.query.status as TransactionStatus) || undefined;
+
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      OR: [
+        {
+          senderId: id,
+        },
+        {
+          recipientId: id,
+        },
+      ],
+      status,
+    },
+    select: {
+      id: true,
+      sender: {
+        select: { name: true },
+      },
+      recipient: {
+        select: { name: true },
+      },
+      amount: true,
+      status: true,
+    },
+  });
+
+  return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
 export const getTransactionsFrom = controller(async (req) => {

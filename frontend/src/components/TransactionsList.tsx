@@ -13,7 +13,7 @@ const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
               {transaction.recipient.name}
             </div>
             <div className={"text-sm text-gray-500"}>
-              {transaction.sender.name} (YOU)
+              {transaction.sender.name}
             </div>
           </div>
           <div className={"text-lg font-semibold"}>{transaction.amount}</div>

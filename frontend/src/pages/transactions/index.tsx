@@ -18,7 +18,7 @@ const Transactions = () => {
   const { data: transactions } = useQuery({
     queryKey: ["transactions", status],
     queryFn: async () => {
-      const res = await api.transaction.getFrom(
+      const res = await api.transaction.getIncluding(
         user!.id,
         status.toUpperCase() as TransactionStatus,
       );
@@ -52,7 +52,7 @@ const Transactions = () => {
             value="successful"
             className={"w-1/2"}
           >
-            Confirmed
+            Successful
           </TabsTrigger>
           <TabsTrigger
             onClick={() => setSearchParam({ status: "pending" })}

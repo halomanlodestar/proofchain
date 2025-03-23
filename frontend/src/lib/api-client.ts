@@ -122,6 +122,14 @@ export const api = {
         },
       );
     },
+    getIncluding: async (
+      id: string,
+      status: TransactionStatus = "SUCCESSFUL",
+    ) => {
+      return await client.get<{ transactions: TransactionMini[] }>(
+        `/transactions/including/${id}?status=${status}`,
+      );
+    },
   },
 
   users: {
