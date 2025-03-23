@@ -3,11 +3,42 @@ import NotFound from "@/pages/NotFound.tsx";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client.ts";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
-// import { useAuth } from "@/hooks/use-auth.tsx";
+import { useAuth } from "@/hooks/use-auth.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
+
+const acceptTransaction = async (id: string) => {
+  try {
+    await api.transaction.accept(id);
+  } catch (e: unknown) {
+    if (e instanceof AxiosError) {
+      if (e.response?.status === 401) {
+        toast.error("You are not authorized to perform this action");
+      } else {
+        toast.error("An error occurred. Please try again later");
+      }
+    }
+  }
+};
+
+const rejctTransaction = async (id: string) => {
+  try {
+    await api.transaction.reject(id);
+  } catch (e: unknown) {
+    if (e instanceof AxiosError) {
+      if (e.response?.status === 401) {
+        toast.error("You are not authorized to perform this action");
+      } else {
+        toast.error("An error occurred. Please try again later");
+      }
+    }
+  }
+};
 
 const TransactionPage = () => {
   const params = useParams();
-  // const { user } = useAuth();
+  const { user } = useAuth();
   const { id } = params;
 
   const { data: transaction, isLoading } = useQuery({
@@ -34,7 +65,7 @@ const TransactionPage = () => {
     return <NotFound />;
   }
 
-  // const isRecipient = transaction.recipient.id === user!.id;
+  const isRecipient = transaction.recipient.id === user!.id;
 
   return (
     <div className={"container-y container-x space-y-5"}>
@@ -54,6 +85,34 @@ const TransactionPage = () => {
         <div className={"text-lg font-semibold"}>Amount</div>
         <div className={"text-3xl"}>{transaction.amount}</div>
       </div>
+
+      <div>
+        <div className={"text-lg font-semibold"}>Status</div>
+        <div
+          className={`text-3xl ${
+            transaction.status === "PENDING"
+              ? "text-yellow-500"
+              : transaction.status === "SUCCESSFUL"
+                ? "text-green-500"
+                : "text-red-500"
+          }`}
+        >
+          {transaction.status}
+        </div>
+      </div>
+      {!isRecipient && (
+        <div className={"flex justify-between"}>
+          <Button
+            variant={"destructive"}
+            onClick={() => acceptTransaction(id!)}
+          >
+            Reject Transaction
+          </Button>
+          <Button onClick={() => rejctTransaction(id!)}>
+            Accept Transaction
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

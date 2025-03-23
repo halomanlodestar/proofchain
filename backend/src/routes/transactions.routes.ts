@@ -5,6 +5,7 @@ import {
   getTransactionBetween,
   getTransactionsFrom,
   getTransactionsTo,
+  rejectTransaction,
 } from "../controllers/transactions.controller";
 import { Router } from "express";
 import {
@@ -26,6 +27,7 @@ transactionsRouter.post(
 transactionsRouter.get("/from/:id", getTransactionsFrom);
 transactionsRouter.get("/to/:id", getTransactionsTo);
 transactionsRouter.get("/from/:senderId/to/:receiverId", getTransactionBetween);
-transactionsRouter.post("/accept/:id", authMiddleware, acceptTransaction);
+transactionsRouter.put("/accept/:id", authMiddleware, acceptTransaction);
+transactionsRouter.put("/reject/:id", authMiddleware, rejectTransaction);
 
 export default transactionsRouter;

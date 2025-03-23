@@ -100,6 +100,12 @@ export const api = {
         `/transactions/from/${senderId}/to/${recipientId}`,
       );
     },
+    accept: async (id: string) => {
+      return await client.put(`/transactions/accept/${id}`);
+    },
+    reject: async (id: string) => {
+      return await client.put(`/transactions/reject/${id}`);
+    },
   },
 
   users: {
