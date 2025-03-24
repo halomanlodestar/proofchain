@@ -4,6 +4,8 @@ export type User = {
   email: string;
 };
 
+export type TransactionMode = "CASH" | "UPI";
+
 export type TransactionStatus = "PENDING" | "SUCCESSFUL" | "REJECTED";
 
 export interface Transaction {
@@ -17,6 +19,7 @@ export interface Transaction {
   expirationTime: Date;
   signature: string;
   previousHash: string;
+  mode: TransactionMode;
   rejectionReason: string | null;
 }
 
@@ -28,10 +31,10 @@ export interface TransactionFilled
 
 export interface TransactionMini {
   id: string;
-  sender: { name: string };
-  recipient: {
-    name: string;
-  };
+  initialisedAt: string;
+  sender: User;
+  recipient: User;
   amount: number;
+  mode: TransactionMode;
   status: TransactionStatus;
 }

@@ -20,6 +20,11 @@ enum TransactionStatus {
   SUCCESSFUL
 }
 
+enum TransactionMode {
+  CASH
+  UPI
+}
+
 model User {
   id                   String        @id @default(cuid())
   name                 String
@@ -39,6 +44,7 @@ model Transaction {
   recipientId    String
   recipient      User              @relation(name: "recipient", map: "recipient", fields: [recipientId], references: [id])
   amount         Float
+  mode           TransactionMode   @default(CASH)
   acceptedAt     DateTime?
   status         TransactionStatus @default(PENDING)
   expirationTime DateTime

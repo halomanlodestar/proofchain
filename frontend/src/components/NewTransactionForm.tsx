@@ -13,7 +13,7 @@ import {
 } from "@/schemas/createTransaction.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input.tsx";
-import { DatePickerDemo } from "@/components/ui/datepicker.tsx";
+import { DatePicker } from "@/components/ui/datepicker.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { DynamicInput } from "@/components/DynamicInput.tsx";
 import { api } from "@/lib/api-client.ts";
@@ -106,6 +106,7 @@ const NewTransactionForm = () => {
               <FormLabel>Recipient</FormLabel>
               <FormControl>
                 <DynamicInput
+                  className={"w-full"}
                   fetchFunction={fetchUsers}
                   placeholder={"Enter email to search"}
                   renderListItem={(user) => <ListItem {...user} />}
@@ -143,13 +144,15 @@ const NewTransactionForm = () => {
             <FormItem>
               <FormLabel>Expires At</FormLabel>
               <FormControl>
-                <DatePickerDemo {...field} />
+                <DatePicker classNameButton={"w-full"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type={"submit"}>Create</Button>
+        <Button type={"submit"} size={"lg"} className={"w-full"}>
+          Create
+        </Button>
       </form>
     </Form>
   );

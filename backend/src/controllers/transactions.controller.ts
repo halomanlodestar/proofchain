@@ -72,6 +72,8 @@ export const getTransactionsIncluding = controller(async (req) => {
       },
       amount: true,
       status: true,
+      mode: true,
+      initialisedAt: true,
     },
   });
 

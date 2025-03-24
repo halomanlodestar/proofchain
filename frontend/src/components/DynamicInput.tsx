@@ -3,6 +3,7 @@
 import type React from "react";
 import { useState, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils.ts";
 
 // Generic type T represents the type of items in the list
 interface DynamicInputProps<T> {
@@ -11,6 +12,7 @@ interface DynamicInputProps<T> {
   onSelect: (item: T) => void;
   debounceTime?: number;
   placeholder?: string;
+  className?: string;
   displayValue?: (item: T) => string;
 }
 
@@ -20,6 +22,7 @@ export function DynamicInput<T>({
   onSelect,
   debounceTime = 300,
   placeholder = "Start typing to search...",
+  className,
   displayValue = (item: T) => {
     const itemAsAny = item as any;
     return itemAsAny.name || itemAsAny.title || JSON.stringify(item);
@@ -73,13 +76,13 @@ export function DynamicInput<T>({
   };
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full">
       <Input
         type="text"
         value={inputValue}
         onChange={handleInputChange}
         placeholder={placeholder}
-        className="w-full"
+        className={cn("w-full", className)}
       />
       {isLoading && (
         <div className="absolute right-3 top-3">

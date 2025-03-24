@@ -3,22 +3,45 @@ import { Link } from "react-router";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { Ghost } from "lucide-react";
 
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth.tsx";
+
 const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
+  const { user } = useAuth();
+
+  const isSender = user?.id === transaction.sender.id;
+  const prefix = isSender ? "to" : "from";
+  const otherName = !isSender
+    ? transaction.recipient.name
+    : transaction.sender.name;
+
   return (
     <Link to={"/transactions/" + transaction.id}>
-      <div className={"shadow-lg border rounded-lg p-4"}>
-        <div className={"flex justify-between"}>
-          <div>
-            <div className={"text-lg font-semibold"}>
-              {transaction.recipient.name}
+      <div className={"flex flex-col p-3 rounded-2xl shadow-lg space-y-3"}>
+        <div className={"flex items-center justify-between"}>
+          <div className={"flex space-x-4 items-center"}>
+            <div
+              className={
+                "bg-rose-700 text-rose-50 rounded-xl p-1.5 flex items-center justify-center"
+              }
+            >
+              {isSender ? (
+                <ArrowUpRight size={32} />
+              ) : (
+                <ArrowDownLeft size={32} />
+              )}
             </div>
-            <div className={"text-sm text-gray-500"}>
-              {transaction.sender.name}
+            <div className={"flex flex-col items-start -space-y-1"}>
+              <span className={"text-sm"}>{prefix}</span>
+              <span className={"text-lg"}>{otherName}</span>
             </div>
           </div>
-          <div className={"text-lg font-semibold"}>{transaction.amount}</div>
+          <div className={"text-lg font-semibold"}>{transaction.amount}€</div>
         </div>
-        <div className={"text-sm text-gray-500"}>{transaction.status}</div>
+        <div className={"flex justify-between items-center"}>
+          <div>{new Date(transaction.initialisedAt).toDateString()}</div>
+          <div>{transaction.mode}</div>
+        </div>
       </div>
     </Link>
   );
@@ -55,7 +78,11 @@ const TransactionsList = ({
   }
 
   return (
-    <div className={"space-y-2"}>
+    <div
+      className={
+        "gap-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+      }
+    >
       {transactions.map((transaction) => (
         <TransactionItem key={transaction.id} transaction={transaction} />
       ))}
