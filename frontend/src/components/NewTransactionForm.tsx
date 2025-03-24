@@ -107,6 +107,7 @@ const NewTransactionForm = () => {
               <FormControl>
                 <DynamicInput
                   fetchFunction={fetchUsers}
+                  placeholder={"Enter email to search"}
                   renderListItem={(user) => <ListItem {...user} />}
                   onSelect={(user) => {
                     field.onChange(user.id);

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Link, useNavigate } from "react-router";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Eye, EyeClosed, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth.tsx";
 import { useState } from "react";
 import { AxiosError } from "axios";
@@ -30,6 +30,7 @@ const SignUpForm = () => {
     },
   });
 
+  const [isPasswordShown, setIsPasswordShown] = useState(false);
   const [success, setSuccess] = useState(false);
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
@@ -110,13 +111,29 @@ const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" type={"password"} {...field} />
+                  <div className={"flex items-center relative w-full pt-4"}>
+                    <Input
+                      placeholder="shadcn"
+                      type={isPasswordShown ? "text" : "password"}
+                      className={"w-full absolute"}
+                      {...field}
+                    />
+                    <Button
+                      type={"button"}
+                      variant={"link"}
+                      className={"absolute right-2 z-10"}
+                      onClick={() => setIsPasswordShown(!isPasswordShown)}
+                    >
+                      {isPasswordShown ? <Eye /> : <EyeClosed />}
+                    </Button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormMessage>{form.formState.errors.root?.message}</FormMessage>
+          <br />
           <Button
             disabled={form.formState.isSubmitting}
             className={`w-full`}

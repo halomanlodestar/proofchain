@@ -7,7 +7,6 @@ import SignInForm from "@/pages/auth/SignInForm.tsx";
 import SignUpForm from "@/pages/auth/SignUpForm.tsx";
 import ProtectedRoutes from "@/components/ProtectedRoutes.tsx";
 import Transactions from "@/pages/transactions";
-import NewTransaction from "@/pages/transactions/NewTransaction.tsx";
 import Dashboard from "@/pages/dashboard/Dashboard.tsx";
 import NotFound from "@/pages/NotFound.tsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -36,7 +35,7 @@ const App = () => {
             {/* ProtectedRoutes */}
             <Route element={<ProtectedRoutes />}>
               <Route path={"transactions"} element={<Transactions />} />
-              <Route path={"transactions/new"} element={<NewTransaction />} />
+              {/*<Route path={"transactions/new"} index />*/}
               <Route path={"transactions/:id"} element={<TransactionPage />} />
               <Route path={"dashboard"} element={<Dashboard />} />
             </Route>

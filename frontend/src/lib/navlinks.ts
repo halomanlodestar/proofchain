@@ -3,11 +3,11 @@ export const navlinks: {
   href: string;
 }[] = [
   {
-    name: "Transactions",
-    href: "/transactions",
-  },
-  {
     name: "Dashboard",
     href: "/dashboard",
+  },
+  {
+    name: "Transactions",
+    href: "/transactions",
   },
 ];

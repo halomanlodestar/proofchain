@@ -1,12 +1,11 @@
-import { Button } from "@/components/ui/button.tsx";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
-import { PlusCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client.ts";
 import { useAuth } from "@/hooks/use-auth.tsx";
 import { TransactionStatus } from "@/types";
 import TransactionsList from "@/components/TransactionsList.tsx";
+import NewTransactionModal from "@/components/NewTransactionModal.tsx";
 
 const Transactions = () => {
   const [searchParams, setSearchParam] = useSearchParams();
@@ -30,19 +29,8 @@ const Transactions = () => {
     <div className={"container-x container-y space-y-5"}>
       <div className={"flex justify-between items-center"}>
         <h1 className={"text-2xl md:text-3xl"}>Transactions</h1>
-        <>
-          <Button className={"md:hidden"} asChild>
-            <Link to={"new"}>
-              <PlusCircle />
-            </Link>
-          </Button>
-          <Button variant={"outline"} className={"hidden md:flex"} asChild>
-            <Link to={"new"}>
-              <PlusCircle />
-              Create Transaction
-            </Link>
-          </Button>
-        </>
+
+        <NewTransactionModal />
       </div>
 
       <Tabs defaultValue={status} className="w-full">

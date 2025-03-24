@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import {
   Sheet,
   SheetClose,
@@ -54,7 +54,12 @@ const Navbar = () => {
                 {navlinks.map((link) => (
                   <li key={link.name} className={"text-2xl hover:underline"}>
                     <SheetClose asChild>
-                      <Link to={link.href}>{link.name}</Link>
+                      <NavLink
+                        to={link.href}
+                        className={"[.active]:text-rose-500"}
+                      >
+                        {link.name}
+                      </NavLink>
                     </SheetClose>
                   </li>
                 ))}
