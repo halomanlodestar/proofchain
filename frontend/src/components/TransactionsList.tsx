@@ -36,7 +36,9 @@ const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
               <span className={"text-lg"}>{otherName}</span>
             </div>
           </div>
-          <div className={"text-lg font-semibold"}>{transaction.amount}€</div>
+          <div className={"text-lg font-semibold"}>
+            &#8377; {transaction.amount}
+          </div>
         </div>
         <div className={"flex justify-between items-center"}>
           <div>{new Date(transaction.initialisedAt).toDateString()}</div>
