@@ -9,7 +9,7 @@ import NewTransactionModal from "@/components/NewTransactionModal.tsx";
 
 const Transactions = () => {
   const [searchParams, setSearchParam] = useSearchParams();
-  const { user } = useAuth();
+  const { token } = useAuth();
 
   const status = (searchParams.get("status") ||
     "successful") as TransactionStatus;
@@ -18,7 +18,7 @@ const Transactions = () => {
     queryKey: ["transactions", status],
     queryFn: async () => {
       const res = await api.transaction.getIncluding(
-        user!.id,
+        token!,
         status.toUpperCase() as TransactionStatus,
       );
       return res.data.transactions;
