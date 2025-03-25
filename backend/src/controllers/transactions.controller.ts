@@ -47,7 +47,7 @@ export const getTransactionById = controller(async (req) => {
 });
 
 export const getTransactionsIncluding = controller(async (req) => {
-  const id = req.params.id;
+  const id = req.user?.id;
   const status = (req.query.status as TransactionStatus) || undefined;
 
   const transactions = await prisma.transaction.findMany({

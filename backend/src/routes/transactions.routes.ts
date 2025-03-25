@@ -16,8 +16,10 @@ import {
 import { createTransactionSchema } from "../schemas/transactions.schema";
 import ValidationPipe from "../pipes/validation.pipes";
 import { authMiddleware } from "../middlewares/auth.middlewares";
+
 const transactionsRouter = Router();
 
+transactionsRouter.get("/", authMiddleware, getTransactionsIncluding);
 transactionsRouter.get("/:id", getTransactionById);
 transactionsRouter.post(
   "/",
@@ -27,7 +29,6 @@ transactionsRouter.post(
 );
 transactionsRouter.get("/from/:id", getTransactionsFrom);
 transactionsRouter.get("/to/:id", getTransactionsTo);
-transactionsRouter.get("/including/:id", getTransactionsIncluding);
 transactionsRouter.get("/from/:senderId/to/:receiverId", getTransactionBetween);
 transactionsRouter.put("/accept/:id", authMiddleware, acceptTransaction);
 transactionsRouter.put("/reject/:id", authMiddleware, rejectTransaction);
