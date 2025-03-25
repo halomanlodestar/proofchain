@@ -26,12 +26,11 @@ const Transactions = () => {
     <div className={"container-x container-y space-y-5"}>
       <div className={"flex justify-between items-center"}>
         <h1 className={"text-2xl md:text-3xl"}>Transactions</h1>
-
         <NewTransactionModal />
       </div>
 
-      <Tabs defaultValue={status} className="w-full">
-        <TabsList>
+      <Tabs defaultValue={status}>
+        <TabsList className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 h-12">
           <TabsTrigger
             onClick={() => setSearchParam({ status: "successful" })}
             value="successful"

@@ -17,7 +17,9 @@ const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
 
   return (
     <Link to={"/transactions/" + transaction.id}>
-      <div className={"flex flex-col p-3 rounded-2xl shadow-lg space-y-3"}>
+      <div
+        className={"flex flex-col p-3 rounded-2xl shadow-lg space-y-3 border"}
+      >
         <div className={"flex items-center justify-between"}>
           <div className={"flex space-x-4 items-center"}>
             <div
