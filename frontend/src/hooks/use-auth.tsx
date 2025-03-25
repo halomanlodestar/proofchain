@@ -46,7 +46,7 @@ const useAuthProvider = () => {
   };
 
   const me = async () => {
-    return await api.auth.me(token!);
+    return await api.auth.me();
   };
 
   const refreshToken = async () => {
