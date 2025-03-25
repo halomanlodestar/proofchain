@@ -46,7 +46,7 @@ export const getTransactionById = controller(async (req) => {
   return new HttpResponse(HttpStatus.OK, { transaction });
 });
 
-export const getTransactionsIncluding = controller(async (req) => {
+export const getTransactions = controller(async (req) => {
   const id = req.user?.id;
   const status = (req.query.status as TransactionStatus) || undefined;
 
@@ -80,42 +80,22 @@ export const getTransactionsIncluding = controller(async (req) => {
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getTransactionsFrom = controller(async (req) => {
-  const senderId = req.params.id;
-  const status = (req.query.status as TransactionStatus) || undefined;
-
-  try {
-    const transactions = await prisma.transaction.findMany({
-      where: {
-        senderId,
-        status,
-      },
-      select: {
-        id: true,
-        sender: {
-          select: { name: true },
-        },
-        recipient: {
-          select: { name: true },
-        },
-        amount: true,
-        status: true,
-      },
-    });
-
-    return new HttpResponse(HttpStatus.OK, { transactions });
-  } catch (e: unknown) {
-    console.log(e);
-    throw new InternalServerError("Internal server error");
-  }
-});
-
-export const getTransactionsTo = controller(async (req) => {
-  const id = req.params.id;
+export const getTransactionsWith = controller(async (req) => {
+  const id = req.user?.id;
+  const otherId = req.params.otherId;
 
   const transactions = await prisma.transaction.findMany({
     where: {
-      recipientId: id,
+      OR: [
+        {
+          senderId: id,
+          recipientId: otherId,
+        },
+        {
+          senderId: otherId,
+          recipientId: id,
+        },
+      ],
     },
     select: {
       id: true,
@@ -127,20 +107,8 @@ export const getTransactionsTo = controller(async (req) => {
       },
       amount: true,
       status: true,
-    },
-  });
-
-  return new HttpResponse(HttpStatus.OK, { transactions });
-});
-
-export const getTransactionBetween = controller(async (req) => {
-  const senderId = req.params.senderId;
-  const recipientId = req.params.recipientId;
-
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      senderId,
-      recipientId,
+      mode: true,
+      initialisedAt: true,
     },
   });
 
@@ -205,7 +173,7 @@ export const acceptTransaction = controller(async (req) => {
   const { id: recipientId } = req.user!;
 
   try {
-    const transaction = await prisma.transaction.update({
+    await prisma.transaction.update({
       where: {
         id,
         recipientId,
@@ -234,7 +202,7 @@ export const rejectTransaction = controller(async (req) => {
   const { id: recipientId } = req.user!;
 
   try {
-    const transaction = await prisma.transaction.update({
+    await prisma.transaction.update({
       where: {
         id,
         recipientId,
