@@ -20,7 +20,7 @@ const TransactionPage = () => {
   } = useQuery({
     queryKey: ["transaction", id],
     queryFn: async () => {
-      const response = await api.transaction.get(id!);
+      const response = await api.transaction.getById(id!);
       return response.data.transaction;
     },
   });

@@ -2,14 +2,12 @@ import { useSearchParams } from "react-router";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client.ts";
-import { useAuth } from "@/hooks/use-auth.tsx";
 import { TransactionStatus } from "@/types";
 import TransactionsList from "@/components/TransactionsList.tsx";
 import NewTransactionModal from "@/components/NewTransactionModal.tsx";
 
 const Transactions = () => {
   const [searchParams, setSearchParam] = useSearchParams();
-  const { token } = useAuth();
 
   const status = (searchParams.get("status") ||
     "successful") as TransactionStatus;
@@ -17,8 +15,7 @@ const Transactions = () => {
   const { data: transactions } = useQuery({
     queryKey: ["transactions", status],
     queryFn: async () => {
-      const res = await api.transaction.getIncluding(
-        token!,
+      const res = await api.transaction.get(
         status.toUpperCase() as TransactionStatus,
       );
       return res.data.transactions;
