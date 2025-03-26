@@ -9,11 +9,13 @@ import { useAuth } from "@/hooks/use-auth.tsx";
 const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
   const { user } = useAuth();
 
-  const isSender = user?.id === transaction.sender.id;
-  const prefix = isSender ? "to" : "from";
-  const otherName = !isSender
-    ? transaction.recipient.name
-    : transaction.sender.name;
+  // console.log(transaction);
+
+  const isRecipient = transaction.recipient.id === user!.id;
+  const prefix = isRecipient ? "from" : "to";
+  const otherName = isRecipient
+    ? transaction.sender.name
+    : transaction.recipient.name;
 
   return (
     <Link to={"/transactions/" + transaction.id}>
@@ -23,14 +25,12 @@ const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
         <div className={"flex items-center justify-between"}>
           <div className={"flex space-x-4 items-center"}>
             <div
-              className={
-                "bg-rose-700 text-rose-50 rounded-xl p-1.5 flex items-center justify-center"
-              }
+              className={`${isRecipient ? "bg-green-600" : "bg-rose-700"} text-rose-50 rounded-xl p-1.5 flex items-center justify-center`}
             >
-              {isSender ? (
-                <ArrowUpRight size={32} />
-              ) : (
+              {isRecipient ? (
                 <ArrowDownLeft size={32} />
+              ) : (
+                <ArrowUpRight size={32} />
               )}
             </div>
             <div className={"flex flex-col items-start -space-y-1"}>
@@ -43,7 +43,7 @@ const TransactionItem = ({ transaction }: { transaction: TransactionMini }) => {
           </div>
         </div>
         <div className={"flex justify-between items-center"}>
-          <div>{new Date(transaction.initialisedAt).toDateString()}</div>
+          <div>{new Date(transaction.createdAt).toDateString()}</div>
           <div>{transaction.mode}</div>
         </div>
       </div>

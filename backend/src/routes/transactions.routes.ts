@@ -2,6 +2,7 @@
 
 import {
   acceptTransaction,
+  getTotalMoneyOwed,
   getTransactions,
   getTransactionsWith,
   rejectTransaction,
@@ -18,6 +19,7 @@ import { authMiddleware } from "../middlewares/auth.middlewares";
 const transactionsRouter = Router();
 
 transactionsRouter.get("/", authMiddleware, getTransactions);
+transactionsRouter.get("/owed", authMiddleware, getTotalMoneyOwed);
 transactionsRouter.get("/:id", getTransactionById);
 transactionsRouter.post(
   "/",

@@ -58,15 +58,6 @@ export const api = {
     },
   },
 
-  // user: {
-  //   get: async (id: string) => {
-  //     return await client.get(`/users/${id}`);
-  //   },
-  //   update: async (id: string, data: { email: string; phone: string }) => {
-  //     return await client.put(`/users/${id}`, data);
-  //   },
-  // },
-
   transaction: {
     create: async (data: {
       amount: number;
@@ -96,6 +87,7 @@ export const api = {
         `/transactions/with/${id}`,
       );
     },
+    totalPayment: async () => {},
   },
 
   users: {

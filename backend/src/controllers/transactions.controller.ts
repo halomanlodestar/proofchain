@@ -65,15 +65,14 @@ export const getTransactions = controller(async (req) => {
     select: {
       id: true,
       sender: {
-        select: { name: true },
+        select: { name: true, email: true, id: true },
       },
       recipient: {
-        select: { name: true },
+        select: { name: true, email: true, id: true },
       },
       amount: true,
       status: true,
       mode: true,
-      initialisedAt: true,
     },
   });
 
@@ -108,11 +107,26 @@ export const getTransactionsWith = controller(async (req) => {
       amount: true,
       status: true,
       mode: true,
-      initialisedAt: true,
     },
   });
 
   return new HttpResponse(HttpStatus.OK, { transactions });
+});
+
+export const getTotalMoneyOwed = controller(async (req) => {
+  const senderId = req.user?.id;
+
+  const total = await prisma.transaction.aggregate({
+    where: {
+      senderId,
+      status: "SUCCESSFUL",
+    },
+    _sum: {
+      amount: true,
+    },
+  });
+
+  return new HttpResponse(HttpStatus.OK, { total });
 });
 
 export const createTransaction = controller(async (req) => {
@@ -135,7 +149,7 @@ export const createTransaction = controller(async (req) => {
       recipientId,
     },
     orderBy: {
-      initialisedAt: "desc",
+      createdAt: "desc",
     },
     select: {
       signature: true,
@@ -181,7 +195,6 @@ export const acceptTransaction = controller(async (req) => {
       },
       data: {
         status: "SUCCESSFUL",
-        acceptedAt: new Date(),
       },
     });
 

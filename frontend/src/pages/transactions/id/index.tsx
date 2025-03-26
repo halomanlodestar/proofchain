@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 const TransactionPage = () => {
   const params = useParams();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { id } = params;
 
   const {
@@ -25,9 +25,9 @@ const TransactionPage = () => {
     },
   });
 
-  const acceptTransaction = async (id: string, token: string) => {
+  const acceptTransaction = async (id: string) => {
     try {
-      const { status } = await api.transaction.accept(id, token);
+      const { status } = await api.transaction.accept(id);
 
       if (status === 204) {
         toast.success("Transaction accepted successfully");
@@ -44,9 +44,9 @@ const TransactionPage = () => {
     }
   };
 
-  const rejectTransaction = async (id: string, token: string) => {
+  const rejectTransaction = async (id: string) => {
     try {
-      const { status } = await api.transaction.reject(id, token);
+      const { status } = await api.transaction.reject(id);
 
       if (status === 204) {
         toast.success("Transaction accepted successfully");
@@ -79,53 +79,44 @@ const TransactionPage = () => {
   }
 
   const isRecipient = transaction.recipient.id === user!.id;
+  const prefix = isRecipient ? "from" : "to";
+  const otherName = isRecipient
+    ? transaction.sender.name
+    : transaction.recipient.name;
+  const statusColor =
+    transaction.status === "PENDING"
+      ? "bg-yellow-200"
+      : transaction.status === "SUCCESSFUL"
+        ? "bg-green-200"
+        : "bg-red-200";
+  const statusIcon = transaction.status === "PENDING" ? "⏳" : "✅";
+
+  console.log(transaction);
 
   return (
-    <div className={"container-y container-x space-y-5"}>
-      <h1 className={"text-2xl md:text-3xl"}>Transaction</h1>
-      <hr />
-      <div className={"text-xl md:text-xl flex justify-between"}>
-        <div className={"w-1/2"}>
-          <div className={"text-lg font-semibold"}>Recipient</div>
-          <div className={"text-3xl"}>{transaction.recipient.name}</div>
-        </div>
-        <div className={"w-1/2"}>
-          <div className={"text-lg font-semibold"}>Sender</div>
-          <div className={"text-3xl"}>{transaction.sender.name}</div>
-        </div>
+    <div className={"container-y container-x space-y-5 pt-5"}>
+      <div
+        className={`w-full flex flex-col space-y-2 p-4 rounded-md ${isRecipient ? "bg-green-200" : "bg-red-200"}`}
+      >
+        <h2>Money Transferred</h2>
+        <strong className={"text-3xl"}>&#8377;{transaction.amount}</strong>
       </div>
-      <div>
-        <div className={"text-lg font-semibold"}>Amount</div>
-        <div className={"text-3xl"}>{transaction.amount}</div>
+      <div className={`${statusColor} p-4 rounded-md flex space-x-2`}>
+        <strong className={"flex space-x-2"}>
+          <span>{statusIcon}</span>
+          <span>{transaction.status}</span>
+        </strong>
+        {transaction.status !== "PENDING" && (
+          <div>
+            <span>updated at</span>
+            <span>{new Date(transaction.updatedAt).toDateString()}</span>
+          </div>
+        )}
       </div>
-
-      <div>
-        <div className={"text-lg font-semibold"}>Status</div>
-        <div
-          className={`text-3xl ${
-            transaction.status === "PENDING"
-              ? "text-yellow-500"
-              : transaction.status === "SUCCESSFUL"
-                ? "text-green-500"
-                : "text-red-500"
-          }`}
-        >
-          {transaction.status}
-        </div>
+      <div className={"flex flex-col"}>
+        <span className={"text-sm"}>Created At</span>
+        <span>{new Date(transaction.createdAt).toDateString()}</span>
       </div>
-      {isRecipient && transaction.status === "PENDING" && (
-        <div className={"flex justify-between"}>
-          <Button
-            variant={"destructive"}
-            onClick={() => rejectTransaction(id!, token!)}
-          >
-            Reject Transaction
-          </Button>
-          <Button onClick={() => acceptTransaction(id!, token!)}>
-            Accept Transaction
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
