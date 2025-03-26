@@ -58,14 +58,14 @@ export const api = {
     },
   },
 
-  user: {
-    get: async (id: string) => {
-      return await client.get(`/users/${id}`);
-    },
-    update: async (id: string, data: { email: string; phone: string }) => {
-      return await client.put(`/users/${id}`, data);
-    },
-  },
+  // user: {
+  //   get: async (id: string) => {
+  //     return await client.get(`/users/${id}`);
+  //   },
+  //   update: async (id: string, data: { email: string; phone: string }) => {
+  //     return await client.put(`/users/${id}`, data);
+  //   },
+  // },
 
   transaction: {
     create: async (data: {
@@ -81,10 +81,10 @@ export const api = {
       );
     },
     accept: async (id: string) => {
-      return await client.put(`/transactions/accept/${id}`);
+      return await client.put(`/transactions/${id}/accept/`);
     },
     reject: async (id: string) => {
-      return await client.put(`/transactions/reject/${id}`);
+      return await client.put(`/transactions/${id}/reject/`);
     },
     get: async (status: TransactionStatus = "SUCCESSFUL") => {
       return await client.get<{ transactions: TransactionMini[] }>(
