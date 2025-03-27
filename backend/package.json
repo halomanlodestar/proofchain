@@ -19,7 +19,7 @@
 		"@types/jsonwebtoken": "9.0.9",
 		"@types/morgan": "^1.9.9",
 		"@types/response-time": "^2.3.8",
-		"prisma": "^6.5.0",
+		"prisma": "^6.5.0"
 	},
 	"dependencies": {
 		"@prisma/client": "^6.5.0",
