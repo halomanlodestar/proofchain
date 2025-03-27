@@ -42,6 +42,7 @@ const useAuthProvider = () => {
   };
 
   const signOut = async () => {
+    setToken(null);
     await api.auth.signOut();
     refresh();
   };
