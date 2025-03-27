@@ -63,7 +63,9 @@ export const login = controller(async (req, res) => {
   res.cookie("refresh_token", refreshToken, {
     expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
     httpOnly: true,
-    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    path: "/",
   });
 
   return new HttpResponse(200, { message: "Logged in" });
