@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api-client.ts";
 import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
 import { useLocation, useNavigate } from "react-router";
@@ -15,10 +15,11 @@ const useAuthProvider = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const isRefreshing = useRef(false);
   const setStoreToken = useAuthStore((state) => state.setToken);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !location.pathname.includes("/auth")) {
       console.log("refreshing");
       refreshToken();
     }
@@ -50,6 +51,8 @@ const useAuthProvider = () => {
   };
 
   const refreshToken = async () => {
+    if (isRefreshing.current) return; // Prevent multiple calls
+    isRefreshing.current = true;
     setIsLoading(true);
     try {
       const { data } = await api.auth.refreshToken();
@@ -60,11 +63,13 @@ const useAuthProvider = () => {
     } catch (err) {
       if (err instanceof AxiosError && !location.pathname.includes("auth")) {
         if (err.status === 401) {
+          if (location.pathname === "/auth/signin") return;
           await signOut();
           return navigate("/auth/signin");
         }
       }
     } finally {
+      isRefreshing.current = false;
       setIsCheckingAuth(false);
       setIsLoading(false);
     }
