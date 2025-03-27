@@ -5,15 +5,17 @@ import { api } from "@/lib/api-client.ts";
 import { TransactionStatus } from "@/types";
 import TransactionsList from "@/components/TransactionsList.tsx";
 import NewTransactionModal from "@/components/NewTransactionModal.tsx";
+import { useAuth } from "@/hooks/use-auth.tsx";
 
 const Transactions = () => {
   const [searchParams, setSearchParam] = useSearchParams();
+  const { user } = useAuth();
 
   const status = (searchParams.get("status") ||
     "successful") as TransactionStatus;
 
   const { data: transactions } = useQuery({
-    queryKey: ["transactions", status],
+    queryKey: ["transactions", status, user?.email],
     queryFn: async () => {
       const res = await api.transaction.get(
         status.toUpperCase() as TransactionStatus,

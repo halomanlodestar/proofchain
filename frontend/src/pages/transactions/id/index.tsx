@@ -203,7 +203,10 @@ const TransactionPage = () => {
               <DialogClose asChild>
                 <Button variant={"secondary"}>Cancel</Button>
               </DialogClose>
-              <Button onClick={() => deleteMutation.mutate()}>
+              <Button
+                variant={"destructive"}
+                onClick={() => deleteMutation.mutate()}
+              >
                 {deleteMutation.isPending && (
                   <Loader2 className={"animate-spin"} />
                 )}
