@@ -4,6 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
+
+
 :root {
   --success: #26b950;
   --radius: 0.625rem;
@@ -136,4 +139,9 @@
 
 @theme {
   --color-success: var(--success);
+  --default-font-family: "Poppins", sans-serif;
+}
+
+body {
+  @apply antialiased;
 }

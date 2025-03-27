@@ -2,10 +2,10 @@
 
 import {
   acceptTransaction,
-  getTransactionBetween,
-  getTransactionsFrom,
-  getTransactionsIncluding,
-  getTransactionsTo,
+  deleteTransaction,
+  getTotalMoneyOwed,
+  getTransactions,
+  getTransactionsWith,
   rejectTransaction,
 } from "../controllers/transactions.controller";
 import { Router } from "express";
@@ -16,8 +16,11 @@ import {
 import { createTransactionSchema } from "../schemas/transactions.schema";
 import ValidationPipe from "../pipes/validation.pipes";
 import { authMiddleware } from "../middlewares/auth.middlewares";
+
 const transactionsRouter = Router();
 
+transactionsRouter.get("/", authMiddleware, getTransactions);
+transactionsRouter.get("/owed", authMiddleware, getTotalMoneyOwed);
 transactionsRouter.get("/:id", getTransactionById);
 transactionsRouter.post(
   "/",
@@ -25,11 +28,9 @@ transactionsRouter.post(
   ValidationPipe(createTransactionSchema),
   createTransaction,
 );
-transactionsRouter.get("/from/:id", getTransactionsFrom);
-transactionsRouter.get("/to/:id", getTransactionsTo);
-transactionsRouter.get("/including/:id", getTransactionsIncluding);
-transactionsRouter.get("/from/:senderId/to/:receiverId", getTransactionBetween);
-transactionsRouter.put("/accept/:id", authMiddleware, acceptTransaction);
-transactionsRouter.put("/reject/:id", authMiddleware, rejectTransaction);
+transactionsRouter.get("/with/:otherId", getTransactionsWith);
+transactionsRouter.put("/:id/accept", authMiddleware, acceptTransaction);
+transactionsRouter.put("/:id/reject", authMiddleware, rejectTransaction);
+transactionsRouter.delete("/:id", authMiddleware, deleteTransaction);
 
 export default transactionsRouter;

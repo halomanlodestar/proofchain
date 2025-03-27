@@ -15,7 +15,6 @@ import { Prisma, TransactionStatus } from "@prisma/client";
 
 export const getTransactionById = controller(async (req) => {
   const id = req.params.id;
-  console.log(id);
 
   const transaction = await prisma.transaction.findUnique({
     where: {
@@ -24,6 +23,7 @@ export const getTransactionById = controller(async (req) => {
     omit: {
       senderId: true,
       recipientId: true,
+      previousHash: true,
     },
     include: {
       sender: {
@@ -46,8 +46,8 @@ export const getTransactionById = controller(async (req) => {
   return new HttpResponse(HttpStatus.OK, { transaction });
 });
 
-export const getTransactionsIncluding = controller(async (req) => {
-  const id = req.params.id;
+export const getTransactions = controller(async (req) => {
+  const id = req.user?.id;
   const status = (req.query.status as TransactionStatus) || undefined;
 
   const transactions = await prisma.transaction.findMany({
@@ -65,57 +65,37 @@ export const getTransactionsIncluding = controller(async (req) => {
     select: {
       id: true,
       sender: {
-        select: { name: true },
+        select: { name: true, email: true, id: true },
       },
       recipient: {
-        select: { name: true },
+        select: { name: true, email: true, id: true },
       },
+      createdAt: true,
       amount: true,
       status: true,
       mode: true,
-      initialisedAt: true,
     },
   });
 
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getTransactionsFrom = controller(async (req) => {
-  const senderId = req.params.id;
-  const status = (req.query.status as TransactionStatus) || undefined;
-
-  try {
-    const transactions = await prisma.transaction.findMany({
-      where: {
-        senderId,
-        status,
-      },
-      select: {
-        id: true,
-        sender: {
-          select: { name: true },
-        },
-        recipient: {
-          select: { name: true },
-        },
-        amount: true,
-        status: true,
-      },
-    });
-
-    return new HttpResponse(HttpStatus.OK, { transactions });
-  } catch (e: unknown) {
-    console.log(e);
-    throw new InternalServerError("Internal server error");
-  }
-});
-
-export const getTransactionsTo = controller(async (req) => {
-  const id = req.params.id;
+export const getTransactionsWith = controller(async (req) => {
+  const id = req.user?.id;
+  const otherId = req.params.otherId;
 
   const transactions = await prisma.transaction.findMany({
     where: {
-      recipientId: id,
+      OR: [
+        {
+          senderId: id,
+          recipientId: otherId,
+        },
+        {
+          senderId: otherId,
+          recipientId: id,
+        },
+      ],
     },
     select: {
       id: true,
@@ -127,29 +107,30 @@ export const getTransactionsTo = controller(async (req) => {
       },
       amount: true,
       status: true,
+      mode: true,
     },
   });
 
   return new HttpResponse(HttpStatus.OK, { transactions });
 });
 
-export const getTransactionBetween = controller(async (req) => {
-  const senderId = req.params.senderId;
-  const recipientId = req.params.recipientId;
+export const getTotalMoneyOwed = controller(async (req) => {
+  const senderId = req.user?.id;
 
-  const transactions = await prisma.transaction.findMany({
+  const total = await prisma.transaction.aggregate({
     where: {
       senderId,
-      recipientId,
+      status: "SUCCESSFUL",
+    },
+    _sum: {
+      amount: true,
     },
   });
 
-  return new HttpResponse(HttpStatus.OK, { transactions });
+  return new HttpResponse(HttpStatus.OK, { total });
 });
 
 export const createTransaction = controller(async (req) => {
-  console.log(req.body);
-
   const { amount, expirationTime, recipientId } = req.body as z.infer<
     typeof createTransactionSchema
   >;
@@ -167,7 +148,7 @@ export const createTransaction = controller(async (req) => {
       recipientId,
     },
     orderBy: {
-      initialisedAt: "desc",
+      createdAt: "desc",
     },
     select: {
       signature: true,
@@ -199,13 +180,11 @@ export const createTransaction = controller(async (req) => {
 });
 
 export const acceptTransaction = controller(async (req) => {
-  console.log("reached controller");
-
   const id = req.params.id;
   const { id: recipientId } = req.user!;
 
   try {
-    const transaction = await prisma.transaction.update({
+    await prisma.transaction.update({
       where: {
         id,
         recipientId,
@@ -213,7 +192,6 @@ export const acceptTransaction = controller(async (req) => {
       },
       data: {
         status: "SUCCESSFUL",
-        acceptedAt: new Date(),
       },
     });
 
@@ -234,7 +212,7 @@ export const rejectTransaction = controller(async (req) => {
   const { id: recipientId } = req.user!;
 
   try {
-    const transaction = await prisma.transaction.update({
+    await prisma.transaction.update({
       where: {
         id,
         recipientId,
@@ -250,6 +228,31 @@ export const rejectTransaction = controller(async (req) => {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2025") {
         throw new NotFoundError("Transaction not found");
+      }
+    }
+
+    throw new InternalServerError("Internal server error");
+  }
+});
+
+export const deleteTransaction = controller(async (req) => {
+  const id = req.params.id;
+  const { id: senderId } = req.user!;
+
+  try {
+    await prisma.transaction.delete({
+      where: {
+        id,
+        status: "PENDING",
+        senderId,
+      },
+    });
+
+    return new HttpResponse(HttpStatus.NO_CONTENT);
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2025") {
+        throw new UnauthorizedError("Only pending transactions can be deleted");
       }
     }
 

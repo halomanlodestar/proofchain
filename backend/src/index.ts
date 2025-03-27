@@ -7,6 +7,10 @@ import { prisma } from "./utils/prisma-client";
 import cors from "cors";
 import morgan from "morgan";
 import { logger } from "./utils/logger";
+import compression from "compression";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import responseTime from "response-time";
 
 env();
 
@@ -16,14 +20,26 @@ const init = async () => {
   logger.info("🔌 Connecting to database...");
   await prisma.$connect().then(() => logger.info("✅ Connected to database"));
 
+  app.use(helmet());
+  app.use(compression());
   app.use(
     cors({
       origin: ["http://localhost:5173"],
       credentials: true,
     }),
   );
+  app.use(responseTime());
   app.use(morgan("dev"));
   app.use(express.json());
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 100,
+      skip: (req) => {
+        return req.url.includes("/api/v1/auth/refresh");
+      },
+    }),
+  );
   app.use("/api/v1", mainRouter);
 
   const PORT = process.env.PORT || 3000;

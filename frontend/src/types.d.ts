@@ -1,3 +1,6 @@
+import { AxiosError } from "axios";
+import globals = require("globals");
+
 export type User = {
   id: string;
   name: string;
@@ -6,20 +9,25 @@ export type User = {
 
 export type TransactionMode = "CASH" | "UPI";
 
-export type TransactionStatus = "PENDING" | "SUCCESSFUL" | "REJECTED";
+export type TransactionStatus =
+  | "PENDING"
+  | "SUCCESSFUL"
+  | "REJECTED"
+  | "EXPIRED";
 
 export interface Transaction {
   id: string;
-  initialisedAt: Date;
   senderId: string;
   recipientId: string;
   amount: number;
-  acceptedAt: Date | null;
+  // acceptedAt: Date | null;
   status: TransactionStatus;
   expirationTime: Date;
   signature: string;
-  previousHash: string;
+  // previousHash: string;
   mode: TransactionMode;
+  updatedAt: Date;
+  createdAt: Date;
   rejectionReason: string | null;
 }
 
@@ -31,7 +39,7 @@ export interface TransactionFilled
 
 export interface TransactionMini {
   id: string;
-  initialisedAt: string;
+  createdAt: Date;
   sender: User;
   recipient: User;
   amount: number;

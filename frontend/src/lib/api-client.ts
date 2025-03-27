@@ -1,25 +1,45 @@
 import { SignInFormValues, SignUpFormValues } from "@/schemas/authForms.tsx";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {
   TransactionStatus,
   TransactionMini,
   User,
   TransactionFilled,
 } from "@/types";
+import { useAuthStore } from "@/store/auth.ts";
 
 export const client = axios.create({
   baseURL: "http://localhost:3000/api/v1",
   withCredentials: true,
 });
 
+client.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+client.interceptors.response.use(
+  (response) => response, // Pass successful responses
+  async (error: AxiosError) => {
+    if (error.config?.url === "/auth/refresh") {
+      useAuthStore.getState().clearToken();
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401) {
+      const { accessToken } = (await api.auth.refreshToken()).data;
+
+      useAuthStore.getState().setToken(accessToken);
+    }
+  },
+);
+
 export const api = {
-  /**
-   * Auth API
-   * - POST /auth/register
-   * - POST /auth/login
-   * - POST /auth/logout
-   * - GET /auth/me
-   */
   auth: {
     signUp: async (data: SignUpFormValues) => {
       return await client.post("/auth/register", data);
@@ -33,102 +53,42 @@ export const api = {
     refreshToken: async () => {
       return await client.post<{ accessToken: string }>("/auth/refresh");
     },
-    me: async (accessToken: string) => {
-      return (
-        await client.get<{ user: User }>("/auth/me", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-      ).data.user;
+    me: async () => {
+      return (await client.get<{ user: User }>("/auth/me")).data.user;
     },
   },
 
-  /**
-   * User API
-   * - GET /users/:id
-   * - PUT /users/:id
-   */
-  user: {
-    get: async (id: string) => {
-      return await client.get(`/users/${id}`);
-    },
-    update: async (id: string, data: { email: string; phone: string }) => {
-      return await client.put(`/users/${id}`, data);
-    },
-  },
-
-  /**
-   * Transaction API
-   * - POST /transactions
-   * - GET /transactions/:id
-   * - GET /transactions/from/:id
-   * - GET /transactions/to/:id
-   * - GET /transactions/from/:senderId/to/:recipientId
-   */
   transaction: {
-    create: async (
-      data: {
-        amount: number;
-        recipientId: string;
-        expirationTime: string;
-      },
-      token: string,
-    ) => {
-      return await client.post("/transactions", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    create: async (data: {
+      amount: number;
+      recipientId: string;
+      expirationTime: string;
+    }) => {
+      return await client.post("/transactions", data);
     },
-    get: async (id: string) => {
+    getById: async (id: string) => {
       return await client.get<{ transaction: TransactionFilled }>(
         `/transactions/${id}`,
       );
     },
-    getFrom: async (id: string, status: TransactionStatus = "SUCCESSFUL") => {
-      // const status = type === "SUCCESSFUL" : type;
+    accept: async (id: string) => {
+      return await client.put(`/transactions/${id}/accept/`);
+    },
+    reject: async (id: string) => {
+      return await client.put(`/transactions/${id}/reject/`);
+    },
+    get: async (status: TransactionStatus = "SUCCESSFUL") => {
       return await client.get<{ transactions: TransactionMini[] }>(
-        `/transactions/from/${id}?status=${status}`,
+        `/transactions?status=${status}`,
       );
     },
-    getTo: async (id: string) => {
-      return await client.get(`/transactions/to/${id}`);
-    },
-    getBetween: async (senderId: string, recipientId: string) => {
-      return await client.get(
-        `/transactions/from/${senderId}/to/${recipientId}`,
-      );
-    },
-    accept: async (id: string, token: string) => {
-      return await client.put(
-        `/transactions/accept/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-    },
-    reject: async (id: string, token: string) => {
-      return await client.put(
-        `/transactions/reject/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-    },
-    getIncluding: async (
-      id: string,
-      status: TransactionStatus = "SUCCESSFUL",
-    ) => {
+    getWith: async (id: string) => {
       return await client.get<{ transactions: TransactionMini[] }>(
-        `/transactions/including/${id}?status=${status}`,
+        `/transactions/with/${id}`,
       );
+    },
+    delete: async (id: string) => {
+      return await client.delete(`/transactions/${id}`);
     },
   },
 

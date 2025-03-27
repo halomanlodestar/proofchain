@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router";
 import { User } from "@/types";
 import { AxiosError } from "axios";
 import { refresh } from "@/lib/utils.ts";
+import { useAuthStore } from "@/store/auth.ts";
 
 const useAuthProvider = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -14,6 +15,7 @@ const useAuthProvider = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const setStoreToken = useAuthStore((state) => state.setToken);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -44,7 +46,7 @@ const useAuthProvider = () => {
   };
 
   const me = async () => {
-    return await api.auth.me(token!);
+    return await api.auth.me();
   };
 
   const refreshToken = async () => {
@@ -53,6 +55,7 @@ const useAuthProvider = () => {
       const { data } = await api.auth.refreshToken();
 
       setToken(data.accessToken);
+      setStoreToken(data.accessToken);
       setIsAuthenticated(true);
     } catch (err) {
       if (err instanceof AxiosError && !location.pathname.includes("auth")) {

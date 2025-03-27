@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "concurrently -n SERVER,CLIENT -c blue,green \"cd ./frontend && npm run dev\" \"cd ./backend && npm run dev\""
+    "dev": "concurrently -n CLIENT,SERVER -c blue,green \"cd ./frontend && npm run dev\" \"cd ./backend && npm run dev\""
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
