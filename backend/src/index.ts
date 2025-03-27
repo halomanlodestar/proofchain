@@ -11,6 +11,7 @@ import compression from "compression";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import responseTime from "response-time";
+import * as process from "node:process";
 
 env();
 
@@ -24,7 +25,7 @@ const init = async () => {
   app.use(compression());
   app.use(
     cors({
-      origin: ["http://localhost:5173"],
+      origin: ["http://localhost:5173", process.env.FRONTEND_URL!],
       credentials: true,
     }),
   );
