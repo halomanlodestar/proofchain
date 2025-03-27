@@ -70,6 +70,7 @@ export const getTransactions = controller(async (req) => {
       recipient: {
         select: { name: true, email: true, id: true },
       },
+      createdAt: true,
       amount: true,
       status: true,
       mode: true,
