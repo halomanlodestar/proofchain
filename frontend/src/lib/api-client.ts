@@ -8,7 +8,11 @@ import {
 } from "@/types";
 import { useAuthStore } from "@/store/auth.ts";
 
-const API_URL = process.env.API_URL || "http://localhost:3000/api/v1";
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  throw new Error("VITE_API_URL is not set");
+}
 
 export const client = axios.create({
   baseURL: API_URL,
