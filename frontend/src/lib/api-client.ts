@@ -87,7 +87,9 @@ export const api = {
         `/transactions/with/${id}`,
       );
     },
-    totalPayment: async () => {},
+    delete: async (id: string) => {
+      return await client.delete(`/transactions/${id}`);
+    },
   },
 
   users: {

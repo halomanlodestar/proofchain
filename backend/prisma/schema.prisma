@@ -16,7 +16,7 @@ datasource db {
 enum TransactionStatus {
   PENDING
   REJECTED
-  CANCELLED
+  EXPIRED
   SUCCESSFUL
 }
 

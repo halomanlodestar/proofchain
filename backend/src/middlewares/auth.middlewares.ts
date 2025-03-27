@@ -8,8 +8,6 @@ import { HttpResponse } from "../utils/http-utils";
 export const authMiddleware: Controller = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
-  console.log(token);
-
   if (!token) {
     res.status(401).json({
       message: "Unauthorized",

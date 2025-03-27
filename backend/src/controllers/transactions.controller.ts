@@ -15,7 +15,6 @@ import { Prisma, TransactionStatus } from "@prisma/client";
 
 export const getTransactionById = controller(async (req) => {
   const id = req.params.id;
-  console.log(id);
 
   const transaction = await prisma.transaction.findUnique({
     where: {
@@ -24,6 +23,7 @@ export const getTransactionById = controller(async (req) => {
     omit: {
       senderId: true,
       recipientId: true,
+      previousHash: true,
     },
     include: {
       sender: {
@@ -130,8 +130,6 @@ export const getTotalMoneyOwed = controller(async (req) => {
 });
 
 export const createTransaction = controller(async (req) => {
-  console.log(req.body);
-
   const { amount, expirationTime, recipientId } = req.body as z.infer<
     typeof createTransactionSchema
   >;
@@ -181,8 +179,6 @@ export const createTransaction = controller(async (req) => {
 });
 
 export const acceptTransaction = controller(async (req) => {
-  console.log("reached controller");
-
   const id = req.params.id;
   const { id: recipientId } = req.user!;
 
@@ -231,6 +227,31 @@ export const rejectTransaction = controller(async (req) => {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2025") {
         throw new NotFoundError("Transaction not found");
+      }
+    }
+
+    throw new InternalServerError("Internal server error");
+  }
+});
+
+export const deleteTransaction = controller(async (req) => {
+  const id = req.params.id;
+  const { id: senderId } = req.user!;
+
+  try {
+    await prisma.transaction.delete({
+      where: {
+        id,
+        status: "PENDING",
+        senderId,
+      },
+    });
+
+    return new HttpResponse(HttpStatus.NO_CONTENT);
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2025") {
+        throw new UnauthorizedError("Only pending transactions can be deleted");
       }
     }
 

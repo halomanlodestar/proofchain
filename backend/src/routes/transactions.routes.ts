@@ -2,6 +2,7 @@
 
 import {
   acceptTransaction,
+  deleteTransaction,
   getTotalMoneyOwed,
   getTransactions,
   getTransactionsWith,
@@ -30,5 +31,6 @@ transactionsRouter.post(
 transactionsRouter.get("/with/:otherId", getTransactionsWith);
 transactionsRouter.put("/:id/accept", authMiddleware, acceptTransaction);
 transactionsRouter.put("/:id/reject", authMiddleware, rejectTransaction);
+transactionsRouter.delete("/:id", authMiddleware, deleteTransaction);
 
 export default transactionsRouter;

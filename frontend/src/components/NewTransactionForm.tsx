@@ -20,9 +20,10 @@ import { api } from "@/lib/api-client.ts";
 import { User } from "@/types";
 import { AxiosError } from "axios";
 import { oneDay } from "@/lib/constants.ts";
-import { toast } from "sonner";
-import { ZodError } from "zod";
 import { useAuth } from "@/hooks/use-auth.tsx";
+import { Loader2 } from "lucide-react";
+import { DialogFooter } from "@/components/ui/dialog.tsx";
+import { useTransactionMutations } from "@/mutations/transaction.ts";
 
 const ListItem = (user: User) => {
   return (
@@ -42,7 +43,9 @@ const NewTransactionForm = () => {
     },
   });
 
-  const { token, user } = useAuth();
+  const { user } = useAuth();
+
+  const { createMutation } = useTransactionMutations();
 
   const fetchUsers = async (email: string): Promise<User[]> => {
     try {
@@ -54,42 +57,15 @@ const NewTransactionForm = () => {
     }
   };
 
-  const onSubmit = async ({
-    recipientId,
-    expirationTime,
-    amount,
-  }: CreateTransactionValues) => {
-    if (recipientId === user?.id) {
+  const onSubmit = async (data: CreateTransactionValues) => {
+    if (data.recipientId === user?.id) {
       form.setError("recipientId", {
         type: "manual",
         message: "You cannot send money to yourself",
       });
       return;
     }
-
-    try {
-      const { status } = await api.transaction.create(
-        {
-          amount,
-          recipientId,
-          expirationTime: expirationTime.toISOString(),
-        },
-        token!,
-      );
-
-      if (status === 201) {
-        form.reset();
-        toast.success("Transaction successfully created");
-      }
-    } catch (e: unknown) {
-      if (e instanceof AxiosError) {
-        toast.error(e.response?.data.message);
-      }
-
-      if (e instanceof ZodError) {
-        console.log(e);
-      }
-    }
+    await createMutation.mutateAsync(data);
   };
 
   return (
@@ -150,9 +126,17 @@ const NewTransactionForm = () => {
             </FormItem>
           )}
         />
-        <Button type={"submit"} size={"lg"} className={"w-full"}>
-          Create
-        </Button>
+        <DialogFooter>
+          <Button
+            disabled={createMutation.isPending}
+            type={"submit"}
+            size={"lg"}
+            className={"w-full"}
+          >
+            {createMutation.isPending && <Loader2 className={"animate-spin"} />}{" "}
+            Create
+          </Button>
+        </DialogFooter>
       </form>
     </Form>
   );
