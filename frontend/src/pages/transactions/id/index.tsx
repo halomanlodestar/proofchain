@@ -95,9 +95,7 @@ const TransactionPage = () => {
 
   return (
     <div className={"container-y container-x space-y-5 pt-5"}>
-      <div
-        className={`w-full flex flex-col space-y-2 p-4 rounded-md ${isRecipient ? "bg-green-200" : "bg-red-200"}`}
-      >
+      <div className={`w-full flex flex-col space-y-2 p-4 rounded-md`}>
         <h2>Money Transferred</h2>
         <strong className={"text-3xl"}>&#8377;{transaction.amount}</strong>
       </div>
