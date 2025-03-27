@@ -2,7 +2,7 @@
 
 Proofchain is a simple, decentralized, and secure way to store and verify data. It is based on the blockchain technology and uses the Ethereum network to store data.
 
-# Ideas
+# Ideas for V2
 - Create Transaction via QR
   - Add camera permission
 - Dashboard
