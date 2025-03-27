@@ -8,8 +8,12 @@ import {
 } from "@/types";
 import { useAuthStore } from "@/store/auth.ts";
 
+const API_URL = process.env.RENDER
+  ? process.env.RENDER_EXTERNAL_URL + "/api/v1"
+  : "http://localhost:3000/api/v1";
+
 export const client = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: API_URL,
   withCredentials: true,
 });
 
